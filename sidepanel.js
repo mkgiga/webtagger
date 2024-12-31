@@ -601,28 +601,6 @@ async function main() {
           shadowColor: "black",
         });
       }
-
-      if (e.key === "ScrollLock") {
-        // debug clearing the local storage
-        promptConfirmDialog({
-          title: "Clear local storage",
-          message:
-            "Are you sure you want to clear the local storage?\nTHIS WILL DELETE ALL PROJECTS",
-          options: [
-            {
-              text: "Yes",
-              onclick: (e) => {
-                chrome.storage.local.clear();
-                save();
-              },
-            },
-            {
-              text: "No",
-              onclick: (e) => {},
-            },
-          ],
-        });
-      }
     } else if (e.ctrlKey && e.shiftKey) {
     } else {
       if (e.key === "Escape") {
@@ -667,7 +645,7 @@ async function main() {
           feedbackText({
             x: tag.offsetLeft + tag.offsetWidth / 2,
             y: tag.offsetTop + tag.offsetHeight / 2,
-            text: boo
+            text: boo,
           });
         }
 
@@ -678,6 +656,26 @@ async function main() {
         }
 
         save();
+      } else if (e.key === "ScrollLock") {
+        // debug clearing the local storage
+        promptConfirmDialog({
+          title: "Clear local storage",
+          message:
+            "Are you sure you want to clear the local storage?\nTHIS WILL DELETE ALL PROJECTS",
+          options: [
+            {
+              text: "Yes",
+              onclick: (e) => {
+                chrome.storage.local.clear();
+                save();
+              },
+            },
+            {
+              text: "No",
+              onclick: (e) => {},
+            },
+          ],
+        });
       }
     }
   });
@@ -2204,8 +2202,12 @@ async function load() {
     }
   }
 
-  const storageData = await chrome.storage.local.get("projects");
+  console.log("Loaded preferences: ", preferences);
+
+  let storageData = await chrome.storage.local.get("projects");
   const allProjects = storageData.projects || {}; // Ensure a fallback to an empty object
+
+
 
   console.log("Checking for projects: ", allProjects);
 
@@ -2245,12 +2247,28 @@ async function load() {
     "lastSessionProjectName"
   );
 
-  const lastSessionProjectName = lastSessionProjectData.lastSessionProjectName;
+  let lastSessionProjectName = lastSessionProjectData.lastSessionProjectName;
+
+  if (
+    lastSessionProjectName === undefined ||
+    lastSessionProjectName === "" ||
+    !allProjects[lastSessionProjectName]
+  ) {
+    // set the last session project name to the first project in the list
+    const firstProjectName = sortedProjects[0][0];
+
+    await chrome.storage.local.set({
+      lastSessionProjectName: firstProjectName,
+    });
+
+    lastSessionProjectName = firstProjectName;
+  }
 
   console.log("Last session project name: ", lastSessionProjectName);
 
   if (lastSessionProjectName && allProjects[lastSessionProjectName]) {
-    const project = allProjects[lastSessionProjectName];
+    const project = checkRepairProjectData(allProjects[lastSessionProjectName]);
+
     initializeWorkingProject(lastSessionProjectName, project);
 
     selectProject.value = lastSessionProjectName;
@@ -2441,6 +2459,8 @@ function initializeWorkingProject(
     const tagCategory = createTagCategory({ name, tags, emoji });
     tagCategories.appendChild(tagCategory);
   }
+
+  console.log(images);
 
   addImageEntries(imageEntries, true, ...images);
 
@@ -2872,7 +2892,12 @@ function feedbackText({
 
   target.appendChild(el);
 
-  let { left: offsetLeft, top: offsetTop, width: offsetWidth, height: offsetHeight } = el.getBoundingClientRect();
+  let {
+    left: offsetLeft,
+    top: offsetTop,
+    width: offsetWidth,
+    height: offsetHeight,
+  } = el.getBoundingClientRect();
   let { width: vw, height: vh } = window.visualViewport;
 
   // center the element on the coordinates passed in the arguments
@@ -2906,8 +2931,6 @@ function feedbackText({
   offsetTop = el.offsetTop;
   offsetWidth = el.offsetWidth;
   offsetHeight = el.offsetHeight;
-
-  
 
   // depending on where there is free space,
   // move the element to that direction
@@ -3046,6 +3069,7 @@ function formatImageEntryTags(textarea = document.querySelector("textarea")) {
 }
 
 function getWorkingProjectTagCategories() {
+  
   const allTagCategories = document
     .querySelector("#tag-categories")
     .querySelectorAll(".tag-category");
@@ -3271,6 +3295,98 @@ function removeSelectedTagsFromEntries() {
 
   updateStats();
   save();
+}
+
+/**
+ * Health check for the project data which ensures that the data is in the correct format.
+ * Returns the same project plus any missing properties on any of its nested objects.
+ * @param {Object} project
+ * @returns {{categories: [{name: string, tags: string[], emoji: string}], images: [{src: string, pageUrl: string, tags: string[]}]}}
+ */
+function checkRepairProjectData(project = {}) {
+  const repairedProject = { ...project };
+
+  if (
+    project.categories === undefined ||
+    !Array.isArray(project.categories)
+  ) {
+    repairedProject.categories = [];
+  }
+
+  if (project.images === undefined || !Array.isArray(project.images)) {
+    repairedProject.images = [];
+  }
+
+  const normalEntry = {
+    src: "",
+    pageUrl: "",
+    tags: [],
+  };
+
+  for (const imageEntry of repairedProject.images) {
+    for (const key in normalEntry) {
+      if (imageEntry[key] === undefined || typeof imageEntry[key] !== typeof normalEntry[key]) {
+        imageEntry[key] = normalEntry[key];
+
+        // assert that tags is an array
+        if (key === "tags") {
+          if (!Array.isArray(imageEntry[key])) {
+            imageEntry[key] = [];
+          }
+        }
+      }
+    }
+  }
+
+  const normalCategory = {
+    name: "",
+    emoji: "",
+    tags: [],
+  };
+
+  for (const category of repairedProject.categories) {
+    for (const key in normalCategory) {
+      if (category[key] === undefined || typeof category[key] !== typeof normalCategory[key]) {
+        category[key] = normalCategory[key];
+
+        // assert that tags is an array
+        if (key === "tags") {
+          if (!Array.isArray(category[key])) {
+            category[key] = [];
+          }
+        }
+      }
+    }
+  }
+
+  // ugly solution but it works,
+  // will refactor later
+
+  if (project.settings === undefined || typeof project.settings !== "object") {
+    repairedProject.settings = {
+      tags: {
+        alwaysPrepend: "",
+        alwaysAppend: "",
+      },
+    };
+  }
+
+  if (repairedProject.settings.tags === undefined || typeof repairedProject.settings.tags !== "object") {
+    repairedProject.settings.tags = {
+      alwaysPrepend: "",
+      alwaysAppend: "",
+    };
+  } else {
+    if (repairedProject.settings.tags.alwaysPrepend === undefined || typeof repairedProject.settings.tags.alwaysPrepend !== "string") {
+      repairedProject.settings.tags.alwaysPrepend = "";
+    }
+
+    if (repairedProject.settings.tags.alwaysAppend === undefined || typeof repairedProject.settings.tags.alwaysAppend !== "string") {
+      repairedProject.settings.tags.alwaysAppend = "";
+    }
+  }
+
+  return repairedProject;
 }
 
 document.addEventListener("DOMContentLoaded", main);
