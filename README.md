@@ -1,10 +1,26 @@
 # webtagger
 An browser extension that lets you build image collections for tagging directly in the browser via a sidebar and various context menu controls.
 
-![Preview screenshot](./readme/sidebar.png)
+![Preview screenshot](./readme/preview.png)
 
 ## Overview
 Auto-tagging via image recognition models is a powerful method for quickly producing metadata for image collections, but sometimes I want to manually tag images to ensure that the data is as accurate as possible. This extension is a power tool for quickly building and iterating over images in a human way, allowing you to categorize your tags, then skim over the images to apply them in bulk.
+
+## Features
+- Add images to the sidebar from the context menu
+- Auto-tag on booru image pages
+- Bulk tag images with multi-image selection
+- Tag categories for organizing tags
+- Search and filter images by tags
+- Export and import datasets
+- Advanced programmatic features for power users (documentation coming soon)
+
+## Supported sites for auto-tagging
+- Danbooru
+- e621
+- rule34.xxx
+
+More sites may be added in the future
 
 ## Installation
 
