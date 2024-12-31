@@ -1,0 +1,64 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Icons&display=swap');
+
+
+/* Default light theme */
+body {
+  background-color: #FFFFFF;
+}
+
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Detect dark mode and apply a darker background */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background-color: #202124;
+    --text-color: #FFFFFF;
+  }
+  body {
+    background-color: var(--background-color);
+  }
+
+  button.material-icons {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: none;
+    border-radius: 0;
+    color: white;
+    font-weight: 400;
+    aspect-ratio: 1;
+    font-size: 64px;
+    padding: 1rem;
+
+    &:hover {
+      filter: invert(1);
+      transform: scale(1.1);
+      transition: all 0.2s;
+    }
+
+    &:active {
+      transform: scale(0.9);
+      transition: all 0.2s;
+    }
+  }
+}
+
+body, html {
+  margin: 0;
+  padding: 0;
+}
+

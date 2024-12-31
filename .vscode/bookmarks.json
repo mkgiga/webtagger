@@ -1,0 +1,29 @@
+{
+	"files": [
+		{
+			"path": "../wizzy2/tools.js",
+			"bookmarks": [
+				{
+					"line": 4,
+					"column": 0,
+					"label": "commands"
+				}
+			]
+		},
+		{
+			"path": "../wizzy2/wizzy.js",
+			"bookmarks": [
+				{
+					"line": 55,
+					"column": 0,
+					"label": "main"
+				},
+				{
+					"line": 428,
+					"column": 0,
+					"label": "promptQuerySelector()"
+				}
+			]
+		}
+	]
+}

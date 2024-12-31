@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "webtagger",
+  "description": "This extension lets you build image collections for tagging directly in the browser via a sidebar and various context menu controls.",
+  "version": "1.0.0",
+  "permissions": [
+    "storage",
+    "system.storage",
+    "unlimitedStorage",
+    "activeTab",
+    "scripting",
+    "sidePanel",
+    "contextMenus",
+    "webNavigation",
+    "tabs",
+    "clipboardWrite",
+    "clipboardRead",
+    "webRequest"
+  ],
+
+  "action": {
+    "default_popup": "./popup/popup.html"
+  },
+  
+  "icons": {
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["./content.js"]
+    }
+  ],
+  "background": {
+    "service_worker": "./background.js"
+  },
+  
+  "side_panel": {
+    "default_path": "./sidepanel.html"
+  },
+
+  "commands": {
+    "open-sidepanel": {
+      "suggested_key": {
+        "default": "Alt+Z",
+        "mac": "Alt+Z"
+      },
+      "description": "Opens the side panel"
+    },
+    "add-booru-image": {
+      "suggested_key": {
+        "default": "Alt+Q",
+        "mac": "Alt+Q"
+      },
+      
+      "description": "Adds the image to the sidebar from the current tab if you are on an imageboard."
+    }
+  }
+}

@@ -1,0 +1,30 @@
+[
+  {
+    "type": "section",
+    "title": "Interface",
+    "children": [
+      {
+        "type": "object:input:checkbox",
+        "label": "Warnings",
+        "value": {
+          "warning-lowres": true,
+          "warning-delete-project": true,
+          "warning-empty-recycle-bin": true
+        },
+
+        "default-value": {
+          "warning-lowres": true,
+          "warning-delete-project": true,
+          "warning-empty-recycle-bin": true
+        }
+      },
+      
+      {
+        "type": "input:text",
+        "label": "Default project name",
+        "value": "My project",
+        "default-value": "My project"
+      }
+    ]
+  }
+]
