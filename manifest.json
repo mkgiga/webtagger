@@ -40,6 +40,7 @@
   },
 
   "commands": {
+    
     "open-sidepanel": {
       "suggested_key": {
         "default": "Alt+Z",
@@ -47,6 +48,7 @@
       },
       "description": "Opens the side panel"
     },
+
     "add-booru-image": {
       "suggested_key": {
         "default": "Alt+Q",

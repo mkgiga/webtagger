@@ -15,6 +15,12 @@ const mirror = {
   },
 };
 
+const supportedBooruSites = [
+  /https?:\/\/danbooru\.donmai\.us\/posts\/\d+/,
+  /https?:\/\/e621\.net\/posts\/\d+/,
+  /https?:\/\/rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/,
+];
+
 function openSidepanel() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0]; // Get the active tab
@@ -33,20 +39,21 @@ function openSidepanel() {
   });
 }
 
-function initCommands() {
-  // 1. open sidebar
-  chrome.commands.onCommand.addListener((command) => {
-    if (command === "open-sidepanel") {
-      openSidepanel();
-    }
-  });
+const commands = {
+  "open-sidepanel": openSidepanel,
+  "add-booru-image": () => {
+    console.log("Triggered add-booru-image command");
+  },
+}
 
-  // 2. add image
-  chrome.commands.onCommand.addListener((command) => {
-    if (command === "add-booru-image") {
-      console.log("Triggered add-booru-image command");
-    }
-  });
+
+// chrome's commands API
+function registerCommands() {
+  for (const [command, callback] of Object.entries(commands)) {
+    chrome.commands.onCommand.addListener((command) => {
+      callback();
+    });
+  }
 }
 
 function initContextMenu() {
@@ -77,60 +84,16 @@ let a = {
     count: 23 
   },
 };
-// we want to initialize the commands and context menu at the start
 
+// we want to initialize the commands and context menu at the start
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension started");
-  initCommands();
+  
+  console.log("Registering command listeners...");
+  registerCommands();
+
+  console.log("Initializing context menu options...");
   initContextMenu();
-
-  const localStoragePreferences = chrome.storage.local.get("preferences");
-  const defaultPreferences = {
-    tagging: {
-      deleteDuplicates: true,
-    },
-    filters: {
-      test: {
-        tags: {
-          blacklist: ["nsfw", "explicit"],
-          priorityList: [],
-          formattingOrder: [
-            "quality",
-            "copyright",
-            "artist",
-            "character",
-            "species",
-            "general",
-            "meta",
-          ],
-        },
-      },
-    },
-    export: {
-      randomizeTagOrder: false,
-    },
-  };
-
-  if (!localStoragePreferences) {
-    chrome.storage.local.set({ preferences: defaultPreferences });
-  } else {
-    // make sure the preferences object is valid
-
-    // iterate the tree and add missing keys to conform to the default schema
-    const preferences = localStoragePreferences;
-    const stack = [preferences];
-
-    while (stack.length > 0) {
-      const current = stack.pop();
-      for (const key in defaultPreferences) {
-        if (!current[key]) {
-          current[key] = defaultPreferences[key];
-        } else if (typeof current[key] === "object") {
-          stack.push(current[key]);
-        }
-      }
-    }
-  }
 });
 
 function addImage(request, sender, sendResponse) {}
