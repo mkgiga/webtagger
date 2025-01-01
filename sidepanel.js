@@ -561,6 +561,10 @@ async function main() {
       });
     });
 
+  document.querySelector("#btn-recycle-bin").addEventListener("click", () => {
+    document.querySelector("#recycle-bin").toggleAttribute("active");
+  });
+
   window.addEventListener("keydown", (e) => {
     // check if an element is edited
     const activeElement = document.activeElement;
@@ -1982,7 +1986,7 @@ function createImageEntry({
     <div class="image-entry">
       <img src="${src}" title="${src}" page-url="${pageUrl}" />
       <textarea class="image-tags"></textarea>
-      <button class="btn-remove-entry material-icons">delete</button>
+      <span class="btn-remove-entry material-icons">delete</span>
       <span class="selection-indicator"></span>
       ${!calledByLoad
         ? (() => {
@@ -2145,19 +2149,33 @@ function createImageEntry({
       }
     }
   };
+  const btnRemoveEntry = el.querySelector(".btn-remove-entry");
 
-  el.querySelector(".btn-remove-entry").addEventListener("click", () => {
+  btnRemoveEntry.addEventListener("click", () => {
     const recycleBin = document.getElementById("recycle-bin");
-
-    // <ul id="recycle-bin-entries"></ul>
     const recycleBinEntries = document.getElementById("recycle-bin-entries");
-    if (!recycleBin) {
-      console.error("Recycle bin not found");
-      return;
+    
+    const imageEntries = document.getElementById("image-entries");
+
+    if (el.parentElement.id === "recycle-bin-entries") {
+      // remove the entry from the recycle bin and back to the image entries
+      imageEntries.appendChild(el);
+
+      // ensure the entry is not selected
+      el.removeAttribute("selected");
     } else {
+      // move the entry to the recycle bin
       recycleBinEntries.appendChild(el);
-      save();
     }
+
+    // change appearance of the button to reflect the action
+    if (el.parentElement.id === "recycle-bin-entries") {
+      btnRemoveEntry.textContent = "restore";
+    } else {
+      btnRemoveEntry.textContent = "delete";
+    }
+
+    save();
   });
 
   save();

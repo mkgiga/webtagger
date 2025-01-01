@@ -406,6 +406,7 @@ textarea {
   scrollbar-track-color: var(--secondary-color);
   scrollbar-face-color: var(--primary-color);
 
+
   .image-entry {
     position: relative;
     display: grid;
@@ -420,6 +421,8 @@ textarea {
 
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) allow-discrete;
     opacity: 1;
+
+    
 
     @starting-style {
       transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) allow-discrete;
@@ -699,14 +702,14 @@ textarea {
   justify-content: flex-start;
   gap: 0.5rem;
   align-items: flex-start;
-  
+
   /* don't vertically space the tags to fill the container, just use the minimum space required */
   align-content: flex-start;
   overflow-y: auto;
   overflow-x: hidden;
 
   .visual-tag-wrapper {
-    
+
     display: flex;
     flex-direction: column;
     transition-behavior: allow-discrete;
@@ -738,12 +741,12 @@ textarea {
       }
     }
 
-    
+
     &[selected] {
       outline: 1px solid white;
       /* gap between the outline and the tag */
       outline-offset: 2px;
-      
+
     }
 
     p.visual-tag {
@@ -785,14 +788,15 @@ textarea {
     text-align: center;
     font-size: 0.75rem;
     text-shadow: 0 0 0.25rem var(--primary-color);
-    font-family: "Raletway", sans-serif;
+    font-family: "Raletway",
+    sans-serif;
     font-weight: 700;
 
     p {
       margin: 0;
     }
 
-    
+
   }
 }
 
@@ -823,9 +827,11 @@ textarea {
 
     height: 100%;
     width: 100%;
+
     .top-bar {
       width: 100%;
     }
+
     .top-bar .tag-actions {
       margin-left: auto;
     }
@@ -1894,6 +1900,10 @@ select[disabled] {
 
         }
       }
+
+      span.btn-remove-entry {
+        content: "recover";
+      }
     }
   }
 
@@ -2030,7 +2040,8 @@ select[disabled] {
 
 [tooltip]:hover::before {
   position: fixed;
-  top: 0; left: 0;
+  top: 0;
+  left: 0;
   display: block;
   z-index: 2;
   padding: 0.25rem;
@@ -2426,21 +2437,21 @@ select[disabled] {
 
   display: flex;
   flex-direction: row;
-  
+
 
   div.selected-tags-buttons {
-    
+
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 0.25rem;
 
-    
+
 
     button {
       display: flex;
-      
+
       font-size: 1rem;
       justify-content: center;
       color: var(--text-color);
@@ -2518,17 +2529,19 @@ select[disabled] {
   anchor-name: "hover-tooltip";
 }
 
-button#apply-tags:not([disabled]), button#remove-tags:not([disabled]) {
+button#apply-tags:not([disabled]),
+button#remove-tags:not([disabled]) {
   /* slight green tint to indicate that the button is active */
-  
+
   transition: all 0.25s cubic-bezier(0.64, 0.57, 0.67, 1.53);
   animation: helloYouCanClickMe 0.25s cubic-bezier(0.64, 0.57, 0.67, 1.53), shimmer-pulse 1s infinite;
   transform-origin: bottom;
-  
+
 
 }
 
 @keyframes helloYouCanClickMe {
+
   /* squish visual cue */
   0% {
     transform: scaleY(0.9);
@@ -2554,5 +2567,71 @@ button#apply-tags:not([disabled]), button#remove-tags:not([disabled]) {
 
   100% {
     text-shadow: 0 0 0.25rem white;
+  }
+}
+
+
+#btn-recycle-bin {
+  display: flex;
+  flex-direction: column;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  text-align: center;
+  justify-content: center;
+  font-size: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-color);
+  text-shadow: 0 0 0.25rem var(--primary-color);
+  user-select: none;
+  
+  padding: 0.25rem;
+
+  margin-left: auto;
+  margin-top: 0;
+  margin-right: 1rem;
+  margin-bottom: auto;
+
+  width: 48px;
+  height: 48px;
+
+  &:hover {
+    filter: brightness(0.75);
+  }
+
+  &:hover {
+    filter: brightness(0.75);
+  }
+}
+
+span.btn-remove-entry {
+  content: "remove";
+  font-size: 1rem;
+  cursor: pointer;
+  user-select: none;
+  background-color: var(--secondary-color);
+  width: fit-content;
+  height: fit-content;
+  place-self: center;
+
+  &:hover {
+    filter: invert(1);
+  }
+
+  &:active {
+    filter: scale(0.9);
+    filter: invert(1);
+  }
+
+  &:focus {
+    filter: invert(1);
+  }
+
+  &:not(:focus)::placeholder {
+    opacity: 0.5;
+    color: var(--dark-color-text), 0.5;
+    text-shadow: 0 0 0.25rem var(--primary-color);
   }
 }
