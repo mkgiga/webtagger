@@ -1,5 +1,5 @@
 # webtagger
-An browser extension that lets you build image collections for tagging directly in the browser via a sidebar and various context menu controls.
+A browser extension that lets you build image collections for tagging directly in the browser via a sidebar and various context menu controls.
 
 ![Preview screenshot](./readme/preview.png)
 
