@@ -1357,9 +1357,21 @@ function createTagCategory({ name = "Category", tags = ["test"], emoji = "" }) {
     }
   });
 
-  el.querySelector(".btn-category-remove").addEventListener("click", () => {
-    el.remove();
-    save();
+  const btnRemoveCategory = el.querySelector(".btn-category-remove");
+
+  btnRemoveCategory.addEventListener("click", () => {
+    promptSmallConfirmDialog({
+      x: btnRemoveCategory.offsetLeft + btnRemoveCategory.offsetWidth / 2,
+      y: btnRemoveCategory.offsetTop + btnRemoveCategory.offsetHeight / 2,
+      message: "Remove this category?",
+      yesText: "Yes",
+      noText: "No",
+      onConfirm: () => {
+        el.remove();
+        save();
+      },
+      duration: 5000,
+    })
   });
 
   el.querySelector(".btn-category-clear-tags").addEventListener("click", () => {
@@ -2847,6 +2859,34 @@ function syncTagColors() {
 }
 
 /**
+ * Position an element within the viewport.
+ * Only works for elements with fixed positioning.
+ * @param {HTMLElement} element
+ * @param {number} distance Optional distance from the edge of the viewport
+ */
+function snapFixedElementIntoView(element, distance = 0) {
+
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+
+  if (element.offsetLeft + element.offsetWidth + distance > vw) {
+    element.style.left = `${vw - element.offsetWidth - distance}px`;
+  }
+
+  if (element.offsetLeft - distance < 0) {
+    element.style.left = `${distance}px`;
+  }
+
+  if (element.offsetTop + element.offsetHeight + distance > vh) {
+    element.style.top = `${vh - element.offsetHeight - distance}px`;
+  }
+
+  if (element.offsetTop - distance < 0) {
+    element.style.top = `${distance}px`;
+  }
+}
+
+/**
  * @todo Get tags by scraping a page
  * @param {string} src
  * @returns
@@ -2856,6 +2896,132 @@ async function getTagsFromPage(src = "") {
   const parser = new DOMParser();
 
   return tags;
+}
+
+/**
+ * Mini version of the confirm dialog that expires after a certain duration
+ */
+function promptSmallConfirmDialog({
+  x = 0,
+  y = 0,
+  message = "Are you sure?",
+  onConfirm = (e) => {},
+  yesText = "Yes",
+  noText = "Cancel",
+  duration = 5000, // auto-cancel if no response
+}) {
+  const prompt = html`
+    <div class="small-prompt-dialog">
+      <span class="radial-timer"></span>
+
+      <p>${message}</p>
+
+      <div class="prompt-buttons">
+        <button class="btn-yes">${yesText}</button>
+        <button class="btn-no">${noText}</button>
+      </div>
+
+      <style>
+        @scope (.small-prompt-dialog) {
+          :scope {
+            & {
+              position: fixed;
+              display: flex;
+              flex-direction: column;
+              place-content: center;
+              place-items: center;
+              gap: 0.5rem;
+              padding: 1rem;
+              border-radius: 0.5rem;
+              background-color: rgba(0, 0, 0, 0.75);
+              box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.75);
+            }
+          }
+        }
+
+        .radial-timer {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 1rem;
+          height: 1rem;
+          border-radius: 50%;
+          background: conic-gradient(var(--flair-color) 0%, transparent 0);
+          
+          pointer-events: none;
+          padding: 0.5rem;
+          margin: 0.5rem;
+        }
+
+        p {
+          text-wrap: nowrap;
+          text-align: center;
+          user-select: none;
+
+          place-self: center;
+        }
+
+        button {
+          background-color: transparent;
+          color: var(--text-color);
+          border: none;
+
+          padding: 0.5rem;
+          cursor: pointer;
+
+          &:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+          }
+
+          &:active {
+            background-color: rgba(255, 255, 255, 0.2);
+          }
+
+          &:focus {
+            outline: none;
+          }
+        }
+
+      </style>
+    </div>
+  `;
+
+  const timerElement = prompt.querySelector(".radial-timer");
+  const startTime = Date.now();
+  
+  const animateTimer = () => {
+    const timeLeft = duration - (Date.now() - startTime);
+    const progress = timeLeft / duration;
+
+    timerElement.style.background = `conic-gradient(var(--flair-color) ${progress}turn, transparent 0)`;
+  
+    if (timeLeft > 0) {
+      requestAnimationFrame(animateTimer);
+    } else {
+      prompt.remove();
+    }
+  };
+
+  prompt.querySelector(".btn-yes").addEventListener("click", () => {
+    onConfirm();
+    prompt.remove();
+  });
+
+  prompt.querySelector(".btn-no").addEventListener("click", () => {
+    prompt.remove();
+  });
+
+  prompt.style.visibility = "hidden";
+  prompt.style.left = `${x}px`;
+  prompt.style.top = `${y}px`;
+
+  document.body.appendChild(prompt);
+
+  snapFixedElementIntoView(prompt, 0);
+
+  prompt.style.visibility = "visible";
+
+  animateTimer();
 }
 
 function promptConfirmDialog({
