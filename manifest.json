@@ -13,8 +13,6 @@
     "contextMenus",
     "webNavigation",
     "tabs",
-    "clipboardWrite",
-    "clipboardRead",
     "webRequest"
   ],
 
