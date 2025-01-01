@@ -321,13 +321,7 @@ async function main() {
   });
 
   document.querySelector(".btn-save").addEventListener("click", () => {
-    save();
-
-    feedbackText({
-      x: window.innerWidth / 2,
-      y: window.innerHeight / 2,
-      text: `Saved ${getCurrentProjectName()}!`,
-    });
+    visualSave();
   });
 
   // project import
@@ -584,22 +578,7 @@ async function main() {
 
     if (e.ctrlKey) {
       if (e.key === "s") {
-        save();
-        document.body.animate(
-          [{ filter: "brightness(2)" }, { filter: "brightness(1)" }],
-          {
-            duration: 500,
-            easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-            fill: "forwards",
-          }
-        );
-        feedbackText({
-          x: window.innerWidth / 2,
-          y: window.innerHeight / 2,
-          text: "Saved!",
-          color: "lime",
-          shadowColor: "black",
-        });
+        visualSave();
       }
     } else if (e.ctrlKey && e.shiftKey) {
     } else {
@@ -2207,8 +2186,6 @@ async function load() {
   let storageData = await chrome.storage.local.get("projects");
   const allProjects = storageData.projects || {}; // Ensure a fallback to an empty object
 
-
-
   console.log("Checking for projects: ", allProjects);
 
   if (Object.keys(allProjects).length === 0) {
@@ -2309,6 +2286,25 @@ async function load() {
   updateStats();
 
   console.log("Loaded projects: ", allProjects);
+}
+
+function visualSave() {
+  save();
+  document.body.animate(
+    [{ filter: "brightness(2)" }, { filter: "brightness(1)" }],
+    {
+      duration: 500,
+      easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+      fill: "forwards",
+    }
+  );
+  feedbackText({
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2,
+    text: "Saved!",
+    color: "lime",
+    shadowColor: "black",
+  });
 }
 
 async function save() {
@@ -3069,7 +3065,6 @@ function formatImageEntryTags(textarea = document.querySelector("textarea")) {
 }
 
 function getWorkingProjectTagCategories() {
-  
   const allTagCategories = document
     .querySelector("#tag-categories")
     .querySelectorAll(".tag-category");
@@ -3306,10 +3301,7 @@ function removeSelectedTagsFromEntries() {
 function checkRepairProjectData(project = {}) {
   const repairedProject = { ...project };
 
-  if (
-    project.categories === undefined ||
-    !Array.isArray(project.categories)
-  ) {
+  if (project.categories === undefined || !Array.isArray(project.categories)) {
     repairedProject.categories = [];
   }
 
@@ -3325,7 +3317,10 @@ function checkRepairProjectData(project = {}) {
 
   for (const imageEntry of repairedProject.images) {
     for (const key in normalEntry) {
-      if (imageEntry[key] === undefined || typeof imageEntry[key] !== typeof normalEntry[key]) {
+      if (
+        imageEntry[key] === undefined ||
+        typeof imageEntry[key] !== typeof normalEntry[key]
+      ) {
         imageEntry[key] = normalEntry[key];
 
         // assert that tags is an array
@@ -3346,7 +3341,10 @@ function checkRepairProjectData(project = {}) {
 
   for (const category of repairedProject.categories) {
     for (const key in normalCategory) {
-      if (category[key] === undefined || typeof category[key] !== typeof normalCategory[key]) {
+      if (
+        category[key] === undefined ||
+        typeof category[key] !== typeof normalCategory[key]
+      ) {
         category[key] = normalCategory[key];
 
         // assert that tags is an array
@@ -3371,17 +3369,26 @@ function checkRepairProjectData(project = {}) {
     };
   }
 
-  if (repairedProject.settings.tags === undefined || typeof repairedProject.settings.tags !== "object") {
+  if (
+    repairedProject.settings.tags === undefined ||
+    typeof repairedProject.settings.tags !== "object"
+  ) {
     repairedProject.settings.tags = {
       alwaysPrepend: "",
       alwaysAppend: "",
     };
   } else {
-    if (repairedProject.settings.tags.alwaysPrepend === undefined || typeof repairedProject.settings.tags.alwaysPrepend !== "string") {
+    if (
+      repairedProject.settings.tags.alwaysPrepend === undefined ||
+      typeof repairedProject.settings.tags.alwaysPrepend !== "string"
+    ) {
       repairedProject.settings.tags.alwaysPrepend = "";
     }
 
-    if (repairedProject.settings.tags.alwaysAppend === undefined || typeof repairedProject.settings.tags.alwaysAppend !== "string") {
+    if (
+      repairedProject.settings.tags.alwaysAppend === undefined ||
+      typeof repairedProject.settings.tags.alwaysAppend !== "string"
+    ) {
       repairedProject.settings.tags.alwaysAppend = "";
     }
   }
