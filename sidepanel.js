@@ -162,8 +162,6 @@ let preferences = {
   "Remembered dialog choices": {},
 };
 
-let projects = {};
-
 function getCurrentProjectName() {
   const res = document.querySelector("#sel-projects").value || null;
   console.log("Current project name: ", res);
@@ -2152,9 +2150,7 @@ function createImageEntry({
   const btnRemoveEntry = el.querySelector(".btn-remove-entry");
 
   btnRemoveEntry.addEventListener("click", () => {
-    const recycleBin = document.getElementById("recycle-bin");
     const recycleBinEntries = document.getElementById("recycle-bin-entries");
-    
     const imageEntries = document.getElementById("image-entries");
 
     if (el.parentElement.id === "recycle-bin-entries") {
@@ -2419,8 +2415,95 @@ async function setProject(name, project) {
   console.log("Set project: ", name);
 }
 
-// compare the project with the current state
-function hasChanged(project) {}
+/**
+ * May be expensive to call -- i should use this sparingly,
+ * only when the user is about to load/create a new project
+ * @returns {boolean | null} Whether there are unsaved changes (null if no project is loaded, which should not happen)
+ */
+async function hasUnsavedChanges() {
+  // we turn our state into a format
+  // identical to the one we have in storage
+  const serialized = serializeProjectState();
+
+  const currentProjectName = getCurrentProjectName();
+  const storageData = await chrome.storage.local.get("projects");
+  const projects = storageData.projects || {};
+  const storedProject = projects[currentProjectName];
+
+  if (!storedProject) {
+    return null;
+  }
+
+  // when serialized, the data is only primitive types ...
+  // ... so we can safely compare them with JSON.stringify
+  return JSON.stringify(storedProject) !== JSON.stringify(serialized);
+}
+
+/**
+ *
+ * @param {string} textContent The content of the textarea
+ * @param {(a: string, b: string) => number | null} sortingFunction
+ * @returns {string[]}
+ */
+function tagstringToArray(textContent = "", sortingFunction = null) {
+  const tags = textContent
+    .split(", ")
+    .map((tag) => tag.trim())
+    .filter((tag) => tag !== "");
+
+  if (sortingFunction) {
+    tags.sort(sortingFunction);
+  }
+
+  return tags;
+}
+
+/**
+ * Converts the current project's DOM state into a JSON-stringifiable object
+ * @returns {{images: {src: string, pageUrl: string, tags: string[]}[], categories: {name: string, emoji: string, tags: string[]}[], settings: {tags: {alwaysPrepend: string, alwaysAppend: string}}}}
+ */
+function serializeProjectState() {
+  const serialized = {
+    images: [],
+    categories: [],
+    settings: {
+      tags: {
+        alwaysPrepend,
+        alwaysAppend,
+      },
+    },
+  };
+
+  for (const entry of document.querySelectorAll(
+    "#image-entries .image-entry"
+  )) {
+    const img = entry.querySelector("img");
+    const src = img.src;
+    const pageUrl = img.getAttribute("page-url");
+    const tags = tagstringToArray(entry.querySelector("textarea").value);
+
+    serialized.images.push({ src, pageUrl, tags });
+  }
+
+  for (const category of document.querySelectorAll(".tag-category")) {
+    const name = category.querySelector(".tag-category-name").textContent;
+    const emoji = category.querySelector(".emoji-icon").textContent;
+    const tags = Array.from(category.querySelectorAll(".visual-tag")).map(
+      (tag) => tag.textContent.trim()
+    );
+
+    serialized.categories.push({ name, emoji, tags });
+  }
+
+  serialized.settings.tags.alwaysPrepend = document
+    .querySelector("#txt-always-prepend")
+    .value.trim();
+  serialized.settings.tags.alwaysAppend = document
+    .querySelector("#txt-always-append")
+    .value.trim();
+
+  return serialized;
+}
 
 function createProjectSelectOption({
   name = "untitled-project",
