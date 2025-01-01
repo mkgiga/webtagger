@@ -170,6 +170,17 @@ function getCurrentProjectName() {
 }
 
 async function main() {
+
+  // iterate the document and add tooltips to all elements with the [todo] attribute
+  const tooltipElements = document.querySelectorAll("[todo]");
+  for (const el of tooltipElements) {
+    if (el.hasAttribute("title")) {
+      el.setAttribute("title", el.getAttribute("title") + " (Coming soon...)");
+    } else {
+      el.setAttribute("title", "Not yet implemented (Coming soon...)");
+    }
+  }
+
   /**
    * Horizontal, wrapping flex container for image entries
    * @type {HTMLDivElement}
