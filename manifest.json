@@ -5,15 +5,11 @@
   "version": "1.0.0",
   "permissions": [
     "storage",
-    "system.storage",
     "unlimitedStorage",
     "activeTab",
     "scripting",
     "sidePanel",
-    "contextMenus",
-    "webNavigation",
-    "tabs",
-    "webRequest"
+    "contextMenus"
   ],
 
   "action": {
@@ -31,6 +27,7 @@
       "js": ["./content.js"]
     }
   ],
+
   "background": {
     "service_worker": "./background.js"
   },

@@ -230,7 +230,7 @@ async function main() {
           y: window.innerHeight / 2,
           text: "This image is already in the recycle bin!",
         });
-
+        
         return;
       }
 
