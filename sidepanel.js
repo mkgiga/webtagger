@@ -170,7 +170,6 @@ function getCurrentProjectName() {
 }
 
 async function main() {
-
   // iterate the document and add tooltips to all elements with the [todo] attribute
   const tooltipElements = document.querySelectorAll("[todo]");
   for (const el of tooltipElements) {
@@ -1369,6 +1368,7 @@ function createTagCategory({ name = "Category", tags = ["test"], emoji = "" }) {
   });
 
   const btnRemoveCategory = el.querySelector(".btn-category-remove");
+  const btnClearTags = el.querySelector(".btn-category-clear-tags");
 
   btnRemoveCategory.addEventListener("click", () => {
     promptSmallConfirmDialog({
@@ -1382,13 +1382,27 @@ function createTagCategory({ name = "Category", tags = ["test"], emoji = "" }) {
         save();
       },
       duration: 5000,
-    })
+    });
   });
 
-  el.querySelector(".btn-category-clear-tags").addEventListener("click", () => {
+  btnClearTags.addEventListener("click", () => {
     const tags = el.querySelectorAll(".visual-tag-wrapper");
-    tags.forEach((tag) => tag.remove());
-    save();
+
+    promptSmallConfirmDialog({
+      x: btnClearTags.offsetLeft + btnClearTags.offsetWidth / 2,
+      y: btnClearTags.offsetTop + btnClearTags.offsetHeight / 2,
+      message: "Clear all tags in this category?",
+      yesText: "Yes",
+      noText: "No",
+      onConfirm: () => {
+        for (const tag of tags) {
+          tag.remove();
+        }
+
+        save();
+      },
+      duration: 5000,
+    });
   });
 
   el.querySelector(".btn-category-add-tag").addEventListener("click", () => {
@@ -2876,7 +2890,6 @@ function syncTagColors() {
  * @param {number} distance Optional distance from the edge of the viewport
  */
 function snapFixedElementIntoView(element, distance = 0) {
-
   const vw = window.innerWidth;
   const vh = window.innerHeight;
 
@@ -2958,7 +2971,7 @@ function promptSmallConfirmDialog({
           height: 1rem;
           border-radius: 50%;
           background: conic-gradient(var(--flair-color) 0%, transparent 0);
-          
+
           pointer-events: none;
           padding: 0.5rem;
           margin: 0.5rem;
@@ -2992,20 +3005,19 @@ function promptSmallConfirmDialog({
             outline: none;
           }
         }
-
       </style>
     </div>
   `;
 
   const timerElement = prompt.querySelector(".radial-timer");
   const startTime = Date.now();
-  
+
   const animateTimer = () => {
     const timeLeft = duration - (Date.now() - startTime);
     const progress = timeLeft / duration;
 
     timerElement.style.background = `conic-gradient(var(--flair-color) ${progress}turn, transparent 0)`;
-  
+
     if (timeLeft > 0) {
       requestAnimationFrame(animateTimer);
     } else {
