@@ -1,6 +1,7 @@
 import { html } from "./lib/html.js";
 import emojis from "./emojis.js";
 import contextMenu from "./context-menu.js";
+
 const windowEventListeners = {
   imagesEntry: {
     click: [],
@@ -193,6 +194,7 @@ async function main() {
   await save();
 
   chrome.contextMenus.onClicked.addListener((info, tab) => {
+
     if (info.menuItemId === "addImage") {
       // check if recycle bin has this image
       const recycleBinEntries = document.querySelectorAll(
@@ -211,8 +213,10 @@ async function main() {
 
         return;
       }
-
-      addImageEntries(entryList, false, { src: info.srcUrl, pageUrl: tab.url });
+      addImageEntries(entryList, false, {
+        src: info.srcUrl,
+        pageUrl: tab.url,
+      });
     }
 
     if (info.menuItemId === "addBooruImage") {
@@ -230,7 +234,7 @@ async function main() {
           y: window.innerHeight / 2,
           text: "This image is already in the recycle bin!",
         });
-        
+
         return;
       }
 

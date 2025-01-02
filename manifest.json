@@ -10,7 +10,8 @@
     "activeTab",
     "scripting",
     "sidePanel",
-    "contextMenus"
+    "contextMenus",
+    "tabs"
   ],
 
   "action": {
@@ -24,7 +25,7 @@
 
   "content_scripts": [
     {
-      "matches": ["https://danbooru.donmai.us/*", "https://e621.net/*", "https://rule34.xxx/*"],
+      "matches": ["https://danbooru.donmai.us/*","https://*.donmai.us/*", "https://e621.net/*", "https://*.e621.net/*", "https://rule34.xxx/*", "https://*.rule34.xxx/*"],
       "js": ["./content.js"]
     }
   ],
