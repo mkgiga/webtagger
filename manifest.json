@@ -8,10 +8,8 @@
     "storage",
     "unlimitedStorage",
     "activeTab",
-    "scripting",
     "sidePanel",
-    "contextMenus",
-    "tabs"
+    "contextMenus"
   ],
 
   "action": {
@@ -25,7 +23,7 @@
 
   "content_scripts": [
     {
-      "matches": ["https://danbooru.donmai.us/*","https://*.donmai.us/*", "https://e621.net/*", "https://*.e621.net/*", "https://rule34.xxx/*", "https://*.rule34.xxx/*"],
+      "matches": ["https://danbooru.donmai.us/*","https://*.donmai.us/*", "https://e621.net/*", "https://*.e621.net/*", "https://rule34.xxx/*", "https://*.rule34.xxx/*", "https://safebooru.org/*", "https://*.safebooru.org/*"],
       "js": ["./content.js"]
     }
   ],

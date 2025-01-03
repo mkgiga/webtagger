@@ -142,11 +142,9 @@ function getTags({
 
   console.log("Scraping tags from: ", url);
 
-  if (url.match(/danbooru\.donmai\.us\/posts\/\d+/)) {
+  if (url.match(/danbooru\.donmai\.us\/posts\/\d+/) || url.match(/e621\.net\/posts\/\d+/)) {
     return danbooru({ options, imageSrc, pageUrl: url });
-  } else if (url.includes("e621")) {
-    return danbooru({ options, imageSrc, pageUrl: url });
-  } else if (url.includes("rule34.xxx")) {
+  } else if (url.includes("rule34.xxx") || url.match(/safebooru\.org\/index\.php\?page=post&s=view&id=\d+/)) {
     return xxx({ options, imageSrc, pageUrl: url });
   }
 
@@ -239,7 +237,10 @@ function xxx({ options, imageSrc, pageUrl }) {
     copyright: "tag-type-copyright"
   }
 
-  const tagList = document.getElementById("tag-sidebar");
+  const tagList = 
+    document.getElementById("tag-sidebar") // rule34.xxx
+    || document.querySelector("sidebar"); // safebooru.org
+    
   console.log("Tag list: ", tagList);
 
   const tagLists = {

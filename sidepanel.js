@@ -246,6 +246,7 @@ async function main() {
           /https?:\/\/danbooru\.donmai\.us\/posts\/\d+/,
           /https?:\/\/e621\.net\/posts\/\d+/, // e621
           /https?:\/\/rule34\.xxx/, // rule34.xxx
+          /https?:\/\/safebooru.org/, // safebooru
         ];
 
         console.log("Active tab for message:", activeTab);
