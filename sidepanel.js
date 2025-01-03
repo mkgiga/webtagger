@@ -110,6 +110,13 @@ const firstTimeProject = {
       emoji: "👕",
     },
   ],
+  images: [],
+  settings: {
+    tags: {
+      alwaysPrepend: "",
+      alwaysAppend: "",
+    },
+  },
 };
 
 const defaultProject = {
