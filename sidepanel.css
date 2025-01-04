@@ -108,12 +108,81 @@ body {
       text-wrap: nowrap;
       vertical-align: middle;
       padding: 0.25rem;
+      margin: 0.25rem;
+      background-color: var(--secondary-color);
+      color: var(--text-color);
+      font-size: 1rem;
+      text-shadow: 0 0 0.25rem var(--primary-color);
+      user-select: text;
+
     }
+
+    input[type="search"] {
+      &:focus {
+        background-color: var(--border-color);
+        color: var(--text-color);
+        /* stroke around the text for extra visibility */
+        paint-order: stroke fill;
+        -webkit-text-stroke: 0.2em var(--primary-color);
+        outline: none;
+      }
+    }
+
+
 
     button {
       p {
         margin: 0;
         padding: 0.25rem;
+      }
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      background-color: var(--secondary-color);
+      color: var(--text-color);
+      font-size: 1.25rem;
+      text-shadow: 0 0 0.25rem var(--primary-color);
+      user-select: none;
+      padding: 0;
+      margin: 0;
+      margin-left: 0.125rem;
+      margin-right: 0.125rem;
+      border: none;
+      cursor: pointer;
+      aspect-ratio: 1 / 1;
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      justify-content: center;
+
+      span {
+        font-size: 1.25rem;
+        margin: 0;
+      }
+
+      &:hover {
+        background-color: var(--border-color);
+        color: var(--text-color);
+      }
+
+      &:focus {
+        background-color: var(--border-color);
+        color: var(--text-color);
+        /* stroke around the text for extra visibility */
+        paint-order: stroke fill;
+        -webkit-text-stroke: 0.2em var(--primary-color);
+      }
+
+      &::placeholder {
+        color: var(--dark-color-text);
+        text-shadow: 0 0 0.25rem var(--primary-color);
+      }
+
+      &:not(:focus)::placeholder {
+        opacity: 0.5;
+        color: var(--dark-color-text), 0.5;
+        text-shadow: 0 0 0.25rem var(--primary-color);
       }
     }
   }
@@ -422,7 +491,7 @@ textarea {
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) allow-discrete;
     opacity: 1;
 
-    
+
 
     @starting-style {
       transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) allow-discrete;
@@ -1173,6 +1242,7 @@ button.tab {
     "b c";
   grid-template-columns: 256px 1fr;
   grid-template-rows: 24px 100%;
+
   padding: 0;
   margin: 0;
   user-select: none;
@@ -1186,6 +1256,10 @@ button.tab {
   .top-bar {
     grid-area: a;
   }
+  .separator {
+    grid-area: separator;
+  }
+
 
   .left-bar {
     overflow: hidden;
@@ -1198,6 +1272,7 @@ button.tab {
     padding-left: 0.25rem;
     padding-right: 0.25rem;
 
+    
     #command-palette {
       padding: 0;
       width: 100%;
@@ -1499,7 +1574,7 @@ button.tab {
       text-wrap: wrap;
       display: inline-block;
       /* To imply that there is a field, and it is editable */
-      border-bottom: 2px dotted var(--secondary-color);
+      border-bottom: 2px dotted var(--primary-color);
       min-width: 48px;
       width: 100%;
       content: "value";
@@ -1568,8 +1643,6 @@ button.tab {
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: center;
-
     background-color: var(--secondary-color);
     color: var(--text-color);
     font-size: 1.25rem;
@@ -1581,6 +1654,11 @@ button.tab {
     margin-right: 0.125rem;
     border: none;
     cursor: pointer;
+    aspect-ratio: 1 / 1;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    justify-content: center;
 
     span {
       font-size: 1.25rem;
@@ -1611,22 +1689,6 @@ button.tab {
       text-shadow: 0 0 0.25rem var(--primary-color);
     }
   }
-
-  #sel-backups {
-    min-width: 128px;
-    display: flex;
-    flex-direction: row;
-    position: relative;
-
-    &:not(:has(option)) {
-      position: relative;
-      cursor: not-allowed !important;
-      pointer-events: none;
-      opacity: 0.5 !important;
-      background-color: var(--secondary-color) !important;
-      color: var(--text-color) !important;
-    }
-  }
 }
 
 #bottom-bar-separator {
@@ -1638,7 +1700,33 @@ button.tab {
   width: 100%;
 }
 
-select {
+.separator-line {
+  display: inline-block;
+  content: "";
+  color: var(--border-color);
+  background-color: var(--border-color);
+  border: none;
+}
+
+.separator-line[row] {
+  height: 100%;
+  width: 1px;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.separator-line[column] {
+  height: 1px;
+  width: 100%;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+#sel-projects {
   background-color: var(--secondary-color);
   color: var(--text-color);
   border: none;
@@ -1650,6 +1738,8 @@ select {
 
   border-bottom: 2px solid var(--primary-color);
   border-bottom-style: ridge;
+
+  min-width: 192px;
 
   &::placeholder {
     color: var(--text-color);
@@ -2094,7 +2184,7 @@ select[disabled] {
 
     background-color: transparent;
 
-    border-bottom: 2px solid var(--dark-color-text);
+    border-bottom: 2px solid var(--primary-color);
 
     h4 {
       margin: 0;
@@ -2177,7 +2267,7 @@ select[disabled] {
           filter: brightness(0.75);
         }
 
-        border-bottom: 2px solid var(--text-color);
+        border-bottom: 2px solid var(--primary-color);
       }
     }
   }
@@ -2299,7 +2389,7 @@ select[disabled] {
         text-wrap: wrap;
         display: inline-block;
         /* To imply that there is a field, and it is editable */
-        border-bottom: 2px dotted var(--secondary-color);
+        border-bottom: 2px dotted var(--primary-color);
         min-width: 48px;
         width: 100%;
         content: "value";
@@ -2586,7 +2676,7 @@ button#remove-tags:not([disabled]) {
   color: var(--text-color);
   text-shadow: 0 0 0.25rem var(--primary-color);
   user-select: none;
-  
+
   padding: 0.25rem;
 
   margin-left: auto;
@@ -2634,4 +2724,29 @@ span.btn-remove-entry {
     color: var(--dark-color-text), 0.5;
     text-shadow: 0 0 0.25rem var(--primary-color);
   }
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'><path d='M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z'/></svg>") !important;
+  cursor: pointer;
+  color: var(--text-color);
+  content: "clear";
+  font-size: 24px;
+  text-shadow: 0 0 0.25rem var(--primary-color);
+  user-select: none;
+  scale: 1.5;
+
+  padding: 0.25rem;
+  margin: 0;
+
+
+
+  &:hover {
+    filter: invert(1);
+  }
+}
+
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
 }

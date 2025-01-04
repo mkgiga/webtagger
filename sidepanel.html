@@ -32,13 +32,26 @@
 
       <h2>webtagger</h2>
 
-      
-    <button id="btn-recycle-bin" class="material-icons">
-      delete
-    </button>
+      <button id="btn-recycle-bin" class="material-icons">delete</button>
     </header>
     <div id="top-menu" class="top-bar">
       <div class="projects-container">
+        <button
+          id="btn-project-new"
+          class="btn-project material-icons"
+          title="Create new project"
+        >
+          note_add
+        </button>
+
+        <button
+          class="btn-load material-icons"
+          title="Import a project from a file."
+          id="btn-load"
+        >
+          folder_open
+        </button>
+
         <button
           class="btn-save material-icons"
           title="Save the current state of the project."
@@ -46,48 +59,28 @@
         >
           save
         </button>
-        <button
-          class="btn-load material-icons"
-          title="Import a project from a file."
-          id="btn-load"
-        >
-          upload_file
-        </button>
-        <button
-          class="btn-export material-icons"
-          title="Download the dataset as a zip file"
-          id="btn-export"
-        >
-          download
-        </button>
 
         <select id="sel-projects"></select>
 
         <button
-          id="btn-project-new"
-          class="btn-project"
-          title="Create new project"
-        >
-          <span class="material-icons">add</span>
-        </button>
-        <button
           id="btn-project-rename"
-          class="btn-project"
+          class="btn-project material-icons"
           title="Rename selected project"
         >
-          <span class="material-icons">edit</span>
+          edit
         </button>
 
         <button
           id="btn-project-delete"
-          class="btn-project"
+          class="btn-project material-icons"
           title="Delete selected project"
         >
-          <span class="material-icons">delete</span>
+          delete
         </button>
       </div>
 
       <div class="menu-separator"></div>
+
 
       <input
         type="search"
@@ -95,6 +88,14 @@
         id="txt-search"
         placeholder="Search tags ..."
       />
+      <button
+      class="btn-export material-icons"
+      title="Download the dataset as a zip file"
+      id="btn-export"
+    >
+      file_download
+    </button>
+
     </div>
 
     <div class="common-project-settings" id="common-project-settings">
@@ -119,8 +120,6 @@
       />
     </div>
 
-    
-
     <div class="image-entries" id="image-entries"></div>
 
     <div id="project-stats">
@@ -138,7 +137,7 @@
         0
       </p>
     </div>
-    
+
     <hr class="separator" id="bottom-bar-separator" />
 
     <div id="bottom-panel">
@@ -164,7 +163,10 @@
       >
         <div class="top-bar">
           <span class="category-actions">
-            <button class="btn-new-category material-icons" id="btn-new-category">
+            <button
+              class="btn-new-category material-icons"
+              id="btn-new-category"
+            >
               add
             </button>
             <button
@@ -181,7 +183,6 @@
             >
               download
             </button>
-          </span>
           </span>
           <span class="tag-actions">
             <button
@@ -472,12 +473,7 @@
               </span>
             </li>
 
-            <li
-              class="query-command"
-              id="cmd-booru-autotag"
-              disabled
-              todo
-            >
+            <li class="query-command" id="cmd-booru-autotag" disabled todo>
               <span class="query-component-top-bar">
                 <div class="query-command-icons">
                   <span class="material-icons">tag</span>
@@ -697,7 +693,6 @@
         <p id="hover-tooltip-content"></p>
       </div>
     </div>
-    
 
     <!-- Thank you, creators of jszip -->
     <script src="../dep/jszip.js"></script>
