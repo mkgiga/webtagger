@@ -311,6 +311,288 @@ function gelbooru({ options, imageSrc, pageUrl }) {
   return { tags, options, imageSrc, pageUrl };
 }
 
+/**
+ * Catch-all function for all boorus.
+ * @param {TagScrapingOptions} options
+ * @returns {TagScrapingResult}
+ */
+function all({ options, imageSrc, pageUrl }) {
+
+  /**
+   * Deep search an element's descendants for a specific element that matches a predicate.
+   * @param {HTMLElement} rootElement
+   * @param {(element: HTMLElement) => boolean} predicate
+   */
+  function findElement(rootElement, predicate) {
+    if (!predicate || typeof predicate !== "function") {
+      throw new Error("Predicate must be a function");
+    }
+
+    if (!rootElement || !(rootElement instanceof Node)) {
+      throw new Error("Root element must be a valid DOM node");
+    }
+    const stack = [rootElement];
+
+    while (stack.length > 0) {
+      const element = stack.pop();
+      
+      if (predicate(element)) {
+        return element;
+      }
+
+      // Add children in reverse order to process them in natural order (DFS)
+      for (let i = element.children.length - 1; i >= 0; i--) {
+        stack.push(element.children[i]);
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Strategies for scraping tags from different boorus.
+   * @type {(() => { character: string[], species: string[], meta: string[], artist: string[], general: string[], species: string[] })[]} A list of functions that scrape tags from different boorus.
+   */
+  const strategies = [
+    // - dan (keeps the tag inside a <li> element's data-tag-name attribute)
+    () => {
+      const valid = document.querySelector("li[data-tag-name]");
+
+      if (!valid) {
+        return null;
+      }
+
+      const tags = {
+        character: [],
+        species: [],
+        meta: [],
+        artist: [],
+        general: [],
+        species: []
+      };
+
+      document.querySelector('ul.general-tag-list')?.querySelectorAll('li').forEach((li) => {
+        const tag = li.getAttribute('data-tag-name');
+
+        if (tag) {
+          tags.general.push(tag);
+        } else {
+          console.warn("No tags found in container: ", li);
+        }
+      });
+
+      document.querySelector('ul.character-tag-list')?.querySelectorAll('li').forEach((li) => {
+        const tag = li.getAttribute('data-tag-name');
+
+        if (tag) {
+          tags.character.push(tag);
+        } else {
+          console.warn("No tags found in container: ", li);
+        }
+      });
+
+      document.querySelector('ul.meta-tag-list')?.querySelectorAll('li').forEach((li) => {
+        const tag = li.getAttribute('data-tag-name');
+
+        if (tag) {
+          tags.meta.push(tag);
+        } else {
+          console.warn("No tags found in container: ", li);
+        }
+      });
+
+      document.querySelector('ul.artist-tag-list')?.querySelectorAll('li').forEach((li) => {
+        const tag = li.getAttribute('data-tag-name');
+
+        if (tag) {
+          tags.artist.push(tag);
+        } else {
+          console.warn("No tags found in container: ", li);
+        }
+      });
+
+      document.querySelector('ul.copyright-tag-list')?.querySelectorAll('li').forEach((li) => {
+        const tag = li.getAttribute('data-tag-name');
+
+        if (tag) {
+          tags.artist.push(tag);
+        } else {
+          console.warn("No tags found in container: ", li);
+        }
+      });
+
+      return {
+        tags,
+        options,
+        imageSrc,
+        pageUrl,
+      };
+    },
+    // gel, 34, safebooru, (uses tag-type-*)
+    () => {
+      // 1. check if this kind of tag exists(used by gelbooru, r34,)
+      const valid = document.querySelector('[class*="tag-type-"]');
+
+      if (!valid) {
+        return null;
+      }
+
+      // 2. Get all tag containers
+      const tagContainers = Array.from(
+        document.querySelectorAll("[class*='tag-type-']")
+      );
+
+      if (tagContainers.length === 0) {
+        return null;
+      }
+
+      // 3. If they contain child elements, we have to check the children for the tags
+      // any child that has a textContent of "?" is not a tag
+
+      // this is the tag itself
+      if (tagContainers[0].children.length > 0) {
+
+        const tags = {
+          copyright: [],
+          character: [],
+          species: [],
+          meta: [],
+          artist: [],
+          general: [],
+          species: []
+        };
+
+        for (const container of tagContainers) {
+          const tag = findElement(container, (element) => element.tagName === 'A' && element.textContent?.trim() !== '?');
+          const tagType = container.className.match(/tag-type-(\w+)/)[1];
+          
+          if (tag) {
+            tags[tagType].push(tag.textContent);
+          } else {
+            console.warn("No tags found in container: ", container);
+            return null;
+          }
+        }
+
+        return {
+          tags,
+          options,
+          imageSrc,
+          pageUrl,
+        };
+      }
+
+      return null;
+    },
+
+    // e6, (uses search-tag, but the container
+    () => {
+      const valid = document.querySelector(".tag-list-header");
+
+      if (!valid) {
+        return null;
+      }
+
+      const tags = {
+        character: [],
+        species: [],
+        meta: [],
+        artist: [],
+        general: [],
+        species: []
+      };
+
+      const copyrightTags = document.querySelector('ul.copyright-tag-list');
+      const generalTags = document.querySelector("ul.general-tag-list");
+      const characterTags = document.querySelector("ul.character-tag-list");
+      const metaTags = document.querySelector("ul.meta-tag-list");
+      const artistTags = document.querySelector("ul.artist-tag-list");
+      const speciesTags = document.querySelector("ul.species-tag-list");
+      
+      copyrightTags?.querySelectorAll("a.search-tag").forEach((tag) => {
+        const tagName = tag.textContent;
+
+        if (tagName) {
+          tags.artist.push(tagName);
+        } else {
+          console.warn("No tags found in container: ", tag);
+        }
+      });
+
+      generalTags?.querySelectorAll("a.search-tag").forEach((tag) => {
+        const tagName = tag.textContent;
+
+        if (tagName) {
+          tags.general.push(tagName);
+        } else {
+          console.warn("No tags found in container: ", tag);
+        }
+      });
+
+      characterTags?.querySelectorAll("a.search-tag").forEach((tag) => {
+        const tagName = tag.textContent;
+
+        if (tagName) {
+          tags.character.push(tagName);
+        } else {
+          console.warn("No tags found in container: ", tag);
+        }
+      });
+
+      metaTags?.querySelectorAll("a.search-tag").forEach((tag) => {
+        const tagName = tag.textContent;
+
+        if (tagName) {
+          tags.meta.push(tagName);
+        } else {
+          console.warn("No tags found in container: ", tag);
+        }
+      });
+
+      artistTags?.querySelectorAll("a.search-tag").forEach((tag) => {
+        const tagName = tag.textContent;
+
+        if (tagName) {
+          tags.artist.push(tagName);
+        } else {
+          console.warn("No tags found in container: ", tag);
+        }
+      });
+
+      speciesTags?.querySelectorAll("a.search-tag").forEach((tag) => {
+        const tagName = tag.textContent;
+
+        if (tagName) {
+          tags.species.push(tagName);
+        } else {
+          console.warn("No tags found in container: ", tag);
+        }
+      });
+
+      return {
+        tags,
+        options,
+        imageSrc,
+        pageUrl,
+      };
+    },
+  ];
+
+  let result = null;
+
+  // Iterate over the strategies and return the first non-null result
+  for (const strategy of strategies) {
+    const res = strategy();
+
+    if (res) {
+      result = res;
+      break;
+    }
+  }
+
+  return result;
+}
+
 function isThumbnail(imageSrc) {
   if (
     imageSrc.includes("danbooru") &&
