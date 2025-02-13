@@ -1,30 +1,62 @@
-[
-  {
-    "type": "section",
-    "title": "Interface",
-    "children": [
-      {
-        "type": "object:input:checkbox",
-        "label": "Warnings",
-        "value": {
-          "warning-lowres": true,
-          "warning-delete-project": true,
-          "warning-empty-recycle-bin": true
+{
+  "tags": {
+    "alwaysAppend": "",
+    "alwaysPrepend": "",
+
+    "blacklist": [],
+
+    "order": [
+      "1boy",
+      "1girl",
+      "{artist}",
+      "{character}",
+      "{copyright}",
+      "{species}",
+      "{general}",
+      "{meta}"
+    ],
+
+    "autotagging": {
+      "rules": {
+
+        "blacklist": [],
+
+        "include": {
+          "artist": true,
+          "copyright": true,
+          "character": true,
+          "general": true,
+          "meta": false,
+          "species": true
         },
 
-        "default-value": {
-          "warning-lowres": true,
-          "warning-delete-project": true,
-          "warning-empty-recycle-bin": true
-        }
-      },
-      
-      {
-        "type": "input:text",
-        "label": "Default project name",
-        "value": "My project",
-        "default-value": "My project"
+        "minimumScore": 0,
+
+        "tagPriority": [
+          "\\d\\+?\\w*",
+          "{artist}",
+          "{character}",
+          "/\\w*\\s?from \\w*/",
+          "/looking \\w*/",
+          "{species}"
+        ],
+        
+        "maxTags": {
+          "artist": null,
+          "character": null,
+          "general": null,
+          "meta": null,
+          "species": null
+        },
+
+        "synonyms": {
+          "1boy": ["sole male", "1boys"],
+          "1girl": ["sole female", "1girls"],
+          "people": ["background characters", "extras"]
+        },
+
+        "replace": []
       }
-    ]
+    }
   }
-]
+}

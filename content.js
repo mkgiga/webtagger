@@ -4,22 +4,22 @@
 
 // listen for messages from the sidepanel script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-
   console.log("Message received: ", message);
   console.log("Sender: ", sender);
 
   if (message.message === "getTags") {
-
     console.log("Getting tags from content script");
+    // check if the current page is supported
 
-    const tags = getTags(
-      {
+    // it is -- parse the tags
+    const tags = getTags({
+      // default fallback options
       options: message.options || {
         rules: {
-          // ignored tags (array of strings, automatically lowercased)
+          /** ignored tags (array of strings, automatically lowercased) */
           blacklist: [],
 
-          // tag categories to include
+          /** categories to include */
           include: {
             character: true,
             species: true,
@@ -49,18 +49,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           ],
 
           // allows to select a specific tag over another
-          redundancyFilter: [["1girl, solo, 1girls"], ["1boy, solo, 1boys"]],
+          synonymPriority: [["1girl, solo, 1girls"], ["1boy, solo, 1boys"]],
 
           /**
            * Different imageboards have different tag names for the same thing.
-           * This dictionary allows you to specify several tags that should be translated to a single tag.
+           * This dictionary allows you to resolve those differences.
            */
-          translationDictionary: {
-            "big dom small sub": ["muscular uke"],
+          translations: {
+            // both 'gay' and 'male/male' get translated to 'yaoi'.
+            yaoi: ["gay", "male/male"],
+            "1boy": ["sole male", "1boys"],
+            "1girl": ["sole female", "1girls"],
+            people: ["background characters", "extras"],
           },
         },
       },
-
       imageSrc: message.imageSrc,
     });
 
@@ -142,10 +145,17 @@ function getTags({
 
   console.log("Scraping tags from: ", url);
 
-  if (url.match(/danbooru\.donmai\.us\/posts\/\d+/) || url.match(/e621\.net\/posts\/\d+/)) {
+  if (
+    url.match(/danbooru\.donmai\.us\/posts\/\d+/) ||
+    url.match(/e621\.net\/posts\/\d+/)
+  ) {
     return danbooru({ options, imageSrc, pageUrl: url });
-  } else if (url.includes("rule34.xxx") || url.match(/safebooru\.org\/index\.php\?page=post&s=view&id=\d+/)) {
-    return xxx({ options, imageSrc, pageUrl: url });
+  } else if (
+    url.includes("rule34.xxx") ||
+    url.includes("gelbooru.com") ||
+    url.match(/safebooru\.org\/index\.php\?page=post&s=view&id=\d+/)
+  ) {
+    return gelbooru({ options, imageSrc, pageUrl: url });
   }
 
   console.error("No scraper found for this site");
@@ -186,7 +196,6 @@ function danbooru({ options, imageSrc, pageUrl }) {
     "copyright",
     "species",
   ]) {
-
     // danbooru doesn't have a species category
     if (!tagLists[category]) {
       continue;
@@ -214,13 +223,11 @@ function danbooru({ options, imageSrc, pageUrl }) {
 
   // todo: unthumbnail
   // imageSrc = unthumbnail(imageSrc);
-  
+
   return { tags, options, imageSrc, pageUrl };
 }
 
-// https://rule34.xxx/index.php?page=post&s=view&id=(\d+)
-function xxx({ options, imageSrc, pageUrl }) {
-
+function gelbooru({ options, imageSrc, pageUrl }) {
   const tags = {
     character: [],
     meta: [],
@@ -234,13 +241,13 @@ function xxx({ options, imageSrc, pageUrl }) {
     meta: "tag-type-meta",
     artist: "tag-type-artist",
     general: "tag-type-general",
-    copyright: "tag-type-copyright"
-  }
+    copyright: "tag-type-copyright",
+  };
 
-  const tagList = 
-    document.getElementById("tag-sidebar") // rule34.xxx
-    || document.querySelector("sidebar"); // safebooru.org
-    
+  const tagList =
+    document.getElementById("tag-sidebar") || // rule34.xxx
+    document.querySelector("sidebar"); // safebooru.org
+
   console.log("Tag list: ", tagList);
 
   const tagLists = {
@@ -248,18 +255,24 @@ function xxx({ options, imageSrc, pageUrl }) {
     meta: tagList.querySelectorAll(`li.${classes.meta} a`),
     artist: tagList.querySelectorAll(`li.${classes.artist} a`),
     general: tagList.querySelectorAll(`li.${classes.general} a`),
-    copyright: tagList.querySelectorAll(`li.${classes.copyright} a`)
+    copyright: tagList.querySelectorAll(`li.${classes.copyright} a`),
   };
 
-  for (const category of ["character", "meta", "artist", "general", "copyright"]) {
+  for (const category of [
+    "character",
+    "meta",
+    "artist",
+    "general",
+    "copyright",
+  ]) {
     const tags = tagLists[category];
     const newTags = [];
 
     for (const tag of tags) {
-      if (tag.textContent === '?') {
+      if (tag.textContent === "?") {
         continue;
       }
-      
+
       newTags.push(tag);
     }
 
@@ -268,7 +281,13 @@ function xxx({ options, imageSrc, pageUrl }) {
 
   console.log("Tags: ", tagLists);
 
-  for (const category of ["character", "species", "meta", "artist", "general"]) {
+  for (const category of [
+    "character",
+    "species",
+    "meta",
+    "artist",
+    "general",
+  ]) {
     for (const tag of tagLists[category] || []) {
       // limit is optional, but null by default
       if (typeof limit === "number" && tags[category].length >= options.limit) {
@@ -293,7 +312,11 @@ function xxx({ options, imageSrc, pageUrl }) {
 }
 
 function isThumbnail(imageSrc) {
-  if (imageSrc.includes("danbooru") && imageSrc.includes("sample-") && imageSrc.endsWith(".jpg")) {
+  if (
+    imageSrc.includes("danbooru") &&
+    imageSrc.includes("sample-") &&
+    imageSrc.endsWith(".jpg")
+  ) {
     return true;
   }
 
@@ -309,4 +332,3 @@ function unthumbnail(imageSrc) {
 
   return imageSrc;
 }
-

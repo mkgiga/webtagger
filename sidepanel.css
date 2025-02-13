@@ -17,6 +17,8 @@
   --dark-color-text: #616161;
 }
 
+
+
 html {
   height: 100vh;
   max-height: 100vh;
@@ -73,6 +75,8 @@ body {
     [hidden] {
       display: none;
     }
+
+    text-rendering: optimizeLegibility !important;
   }
 
   input {
@@ -1251,11 +1255,13 @@ button.tab {
   top: 0;
   bottom: 0;
 
+
   color: var(--text-color);
 
   .top-bar {
     grid-area: a;
   }
+
   .separator {
     grid-area: separator;
   }
@@ -1272,7 +1278,7 @@ button.tab {
     padding-left: 0.25rem;
     padding-right: 0.25rem;
 
-    
+
     #command-palette {
       padding: 0;
       width: 100%;
@@ -1442,9 +1448,14 @@ button.tab {
       overflow-y: auto;
       overflow-x: hidden;
 
-      padding: 0.25rem;
-      margin: 0;
+      padding:0;
+      margin-bottom: 0.5rem;
+      margin-right: 0.5rem;
+      margin-top: 0;
       gap: 0.125rem;
+
+
+      border-left: 1px solid var(--border-color);
 
       width: 100%;
 
@@ -1499,9 +1510,19 @@ button.tab {
     padding: 0.125rem;
 
     &:has(button) {
-      grid-template-areas: "a b c";
-      grid-template-columns: auto 1fr 12px;
+      grid-template-areas: "a b c d e";
+      grid-template-columns: max-content auto 12px 12px 12px;
       grid-template-rows: 1fr;
+      /* justify items to the left */
+      justify-items: flex-start;
+
+      button {
+        aspect-ratio: 1 / 1;
+        padding: 0;
+        margin: 0;
+      }
+
+      align-items: center;
     }
 
     &:not(:has(button)) {
@@ -1726,7 +1747,7 @@ button.tab {
   padding-right: 0;
 }
 
-#sel-projects {
+select {
   background-color: var(--secondary-color);
   color: var(--text-color);
   border: none;

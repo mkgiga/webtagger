@@ -18,22 +18,26 @@
   
   "icons": {
     "48": "icon-48.png",
+    "96": "icon-96.png",
     "128": "icon-128.png"
   },
 
   "content_scripts": [
     {
-      "matches": ["https://danbooru.donmai.us/*","https://*.donmai.us/*", "https://e621.net/*", "https://*.e621.net/*", "https://rule34.xxx/*", "https://*.rule34.xxx/*", "https://safebooru.org/*", "https://*.safebooru.org/*"],
-      "js": ["./content.js"]
+      "matches": ["*://*.donmai.us/*", "*://*.gelbooru.com/*", "*://*.rule34.xxx/*", "*://*.safebooru.org/*", "*://*.e621.net/*"],
+      "js": ["./content.js"],
+      "type": "module"
     }
   ],
 
   "background": {
-    "service_worker": "./background.js"
+    "service_worker": "./background.js",
+    "type": "module"
   },
   
   "side_panel": {
-    "default_path": "./sidepanel.html"
+    "default_path": "./sidepanel.html",
+    "type": "module"
   },
 
   "commands": {

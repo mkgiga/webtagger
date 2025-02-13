@@ -201,23 +201,25 @@ async function main() {
   await save();
 
   chrome.contextMenus.onClicked.addListener((info, tab) => {
-
     if (info.menuItemId === "addImage") {
       // check if recycle bin has this image
       const recycleBinEntries = document.querySelectorAll(
         "#recycle-bin .image-entry"
       );
-      const recycleBinHasImage = Array.from(recycleBinEntries).some(
-        (entry) => entry.querySelector("img").src === info.srcUrl
-      );
 
-      if (recycleBinHasImage) {
+      const recycleBinImage = recycleBinEntries
+        .values()
+        .find((entry) => entry.querySelector("img").src === info.srcUrl);
+
+      if (recycleBinImage) {
+        recycleBinRestoreEntry(recycleBinImage);
+
         feedbackText({
           x: window.innerWidth / 2,
           y: window.innerHeight / 2,
-          text: "This image is already in the recycle bin!",
+          text: "Restored image from recycle bin",
         });
-
+        
         return;
       }
       addImageEntries(entryList, false, {
@@ -249,34 +251,10 @@ async function main() {
         const activeTab = tabs[0];
         const imageSrc = info.srcUrl;
 
-        const supportedSites = [
-          /https?:\/\/danbooru\.donmai\.us\/posts\/\d+/,
-          /https?:\/\/e621\.net\/posts\/\d+/, // e621
-          /https?:\/\/rule34\.xxx/, // rule34.xxx
-          /https?:\/\/safebooru.org/, // safebooru
-        ];
-
         console.log("Active tab for message:", activeTab);
 
         if (!activeTab) {
           console.error("No active tab found");
-          return;
-        }
-
-        if (imageSrc.includes("rule34.paheal.net")) {
-          console.error(
-            "rule34.paheal does not tag images except for the character names, sorry!"
-          );
-          return;
-        }
-
-        // check if the active tab is a supported site
-        const isSupportedSite = supportedSites.some((site) =>
-          site.test(activeTab.url)
-        );
-
-        if (!isSupportedSite) {
-          console.error("The active tab is not a supported site");
           return;
         }
 
@@ -285,6 +263,25 @@ async function main() {
           { message: "getTags", imageSrc },
           (response) => {
             console.log("Response from content script:", response);
+            
+            if (!response) {
+              console.error(
+                "Unexpected response from content script, type:",
+                typeof response
+              );
+              return;
+            }
+
+            if (response?.error && typeof response.error === "string") {
+              feedbackText({
+                x: window.innerWidth / 2,
+                y: window.innerHeight / 2,
+                text: response.error,
+              });
+
+              return;
+            }
+
             onImportedTags(response);
           }
         );
@@ -299,26 +296,13 @@ async function main() {
         "#recycle-bin-entries .image-entry"
       );
 
-      entries.forEach((entry) => {
-        console.log("Restoring entry: ", entry);
-        const cloned = entry.cloneNode(true);
-        entry.remove();
-
-        const src = cloned.querySelector("img").src;
-        const tags = cloned.querySelector("textarea").value.split(", ");
-
-        const newEntry = createImageEntry({
-          src,
-          tags,
-          target: entryList,
-          calledByLoad: true,
-        });
-
-        entryList.appendChild(newEntry);
-      });
+      for (const entry of entries) {
+        recycleBinRestoreEntry(entry);
+      };
 
       save();
     });
+
 
   document
     .querySelector("#btn-clear-recycle-bin")
@@ -1056,6 +1040,14 @@ function initQueryCommand(element) {
       <button class="btn-remove-command material-icons">close</button>
     `;
 
+    const moveUpButton = html`
+      <button class="btn-move-up material-icons">arrow_upward</button>
+    `;
+
+    const moveDownButton = html`
+      <button class="btn-move-down material-icons">arrow_downward</button>
+    `;
+
     removeButton.style.marginRight = "4rem";
     removeButton.style.marginLeft = "auto";
 
@@ -1063,7 +1055,27 @@ function initQueryCommand(element) {
       cloned.remove();
     });
 
+    moveUpButton.addEventListener("click", () => {
+      const previous = cloned.previousElementSibling;
+
+      if (previous) {
+        previous.insertAdjacentElement("beforebegin", cloned);
+      }
+    });
+
+    moveDownButton.addEventListener("click", () => {
+      const next = cloned.nextElementSibling;
+
+      if (next) {
+        next.insertAdjacentElement("afterend", cloned);
+      }
+    });
+
+    topBar.appendChild(moveUpButton);
+    topBar.appendChild(moveDownButton);
+
     topBar.appendChild(removeButton);
+
   }
 
   // 3. Initialize the command based on its id
@@ -3696,6 +3708,32 @@ function checkRepairProjectData(project = {}) {
   }
 
   return repairedProject;
+}
+
+function recycleBinRestoreEntry(entry) {
+  const entryList = document.querySelector("#image-entries");
+
+  if (entryList.contains(entry)) {
+    console.warn("Entry already exists in the entry list.");
+    return;
+  }
+
+  console.log("[Recycle bin] Restoring entry: ", entry);
+  
+  const cloned = entry.cloneNode(true);
+  entry.remove();
+
+  const src = cloned.querySelector("img").src;
+  const tags = cloned.querySelector("textarea").value.split(", ");
+
+  const restoredEntry = createImageEntry({
+    src,
+    tags,
+    target: entryList,
+    calledByLoad: true,
+  });
+
+  entryList.appendChild(restoredEntry);
 }
 
 document.addEventListener("DOMContentLoaded", main);
