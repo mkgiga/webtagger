@@ -24,9 +24,8 @@
 
   "content_scripts": [
     {
-      "matches": ["*://*.donmai.us/*", "*://*.gelbooru.com/*", "*://*.rule34.xxx/*", "*://*.safebooru.org/*", "*://*.e621.net/*"],
-      "js": ["./content.js"],
-      "type": "module"
+      "matches": ["<all_urls>"],
+      "js": ["./content.js"]
     }
   ],
 

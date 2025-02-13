@@ -1,6 +1,38 @@
+/* ********************************* JSDoc Types ********************************** */
+
 /**
- * content script, for getting the booru tags from the image we copy and returning them to the sidepanel script.
+ * @typedef {Object} TagScrapingResult
+ * @property {Object} result
+ * @property {string[]} result.character
+ * @property {string[]} result.species
+ * @property {string[]} result.meta
+ * @property {string[]} result.artist
+ * @property {string[]} result.general
+ * @property {string[]} result.species
+ * @property {string[]} result.copyright
+ * @property {TagScrapingOptions} options
+ * @property {string[]} imageSrc - the URL of the image being scraped
  */
+
+/**
+ * @typedef {Object} TagScrapingOptions
+ * @property {Object} rules
+ * @property {string[]} rules.blacklist
+ * @property {Object} rules.include
+ * @property {boolean} rules.include.character
+ * @property {boolean} rules.include.species
+ * @property {boolean} rules.include.meta
+ * @property {boolean} rules.include.artist
+ * @property {boolean} rules.include.general
+ * @property {["{character}", "{species}", "{meta}", "{artist}", "{general}", "{species}"]} rules.formattingOrder
+ * The order in which the tags should be displayed. The user may generalize tags that belong to a category by surrounding them with curly braces,
+ * but they can also add specific tags anywhere in the list should they appear in the post.
+ *
+ * @property {number | null} [limit=null]
+ */
+
+
+/* ******************************* Message Handler ******************************** */
 
 // listen for messages from the sidepanel script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -65,6 +97,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         },
       },
       imageSrc: message.imageSrc,
+      pageUrl: window.location.href,
     });
 
     console.log("Tags fetched: ", tags);
@@ -75,39 +108,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 console.log("Content script loaded");
 
-/**
- * @typedef {Object} TagScrapingResult
- * @property {Object} tags
- * @property {string[]} tags.character
- * @property {string[]} tags.species
- * @property {string[]} tags.meta
- * @property {string[]} tags.artist
- * @property {string[]} tags.general
- * @property {string[]} tags.species
- * @property {string[]} tags.copyright
- * @property {TagScrapingOptions} options
- * @property {string[]} imageSrc - the URL of the image being scraped
- */
+/* ********************************** Functions *********************************** */
 
 /**
- * @typedef {Object} TagScrapingOptions
- * @property {Object} rules
- * @property {string[]} rules.blacklist
- * @property {Object} rules.include
- * @property {boolean} rules.include.character
- * @property {boolean} rules.include.species
- * @property {boolean} rules.include.meta
- * @property {boolean} rules.include.artist
- * @property {boolean} rules.include.general
- * @property {["{character}", "{species}", "{meta}", "{artist}", "{general}", "{species}"]} rules.formattingOrder
- * The order in which the tags should be displayed. The user may generalize tags that belong to a category by surrounding them with curly braces,
- * but they can also add specific tags anywhere in the list should they appear in the post.
- *
- * @property {number | null} [limit=null]
- */
-
-/**
- * @param {TagScrapingOptions} options
+ * @param {Object} options
+ * @param {TagScrapingOptions} options.options
+ * @param {string} options.imageSrc
+ * @param {string} options.pageUrl
  * @returns {TagScrapingResult}
  */
 function getTags({
@@ -133,187 +140,31 @@ function getTags({
     limit: null,
   },
   imageSrc,
+  pageUrl,
 }) {
-  // where are we?
-  const url = window.location.href;
 
-  console.log("Options: ", options);
+  const result = all({ options, imageSrc, pageUrl });
 
-  options.rules.blacklist = options.rules.blacklist.map((tag) =>
-    tag.toLowerCase().trim()
-  );
-
-  console.log("Scraping tags from: ", url);
-
-  if (
-    url.match(/danbooru\.donmai\.us\/posts\/\d+/) ||
-    url.match(/e621\.net\/posts\/\d+/)
-  ) {
-    return danbooru({ options, imageSrc, pageUrl: url });
-  } else if (
-    url.includes("rule34.xxx") ||
-    url.includes("gelbooru.com") ||
-    url.match(/safebooru\.org\/index\.php\?page=post&s=view&id=\d+/)
-  ) {
-    return gelbooru({ options, imageSrc, pageUrl: url });
-  }
-
-  console.error("No scraper found for this site");
-
-  return {};
-}
-
-/**
- * danbooru and e621 both use the same type of booru backend,
- * so their html structure is the same.
- * @param {TagScrapingOptions} options
- * @returns {TagScrapingResult}
- */
-function danbooru({ options, imageSrc, pageUrl }) {
-  const tags = {
-    character: [],
-    species: [],
-    meta: [],
-    artist: [],
-    general: [],
-    species: [],
-    copyright: [],
+  return {
+    tags: result.tags || {
+      copyright: [],
+      character: [],
+      meta: [],
+      artist: [],
+      general: [],
+      species: [],
+    },
+    options,
+    imageSrc,
   };
-
-  const tagLists = {
-    character: document.querySelectorAll("ul.character-tag-list a.search-tag"),
-    meta: document.querySelectorAll("ul.meta-tag-list a.search-tag"),
-    artist: document.querySelectorAll("ul.artist-tag-list a.search-tag"),
-    general: document.querySelectorAll("ul.general-tag-list a.search-tag"),
-    copyright: document.querySelectorAll("ul.copyright-tag-list a.search-tag"),
-  };
-
-  for (const category of [
-    "character",
-    "meta",
-    "artist",
-    "general",
-    "copyright",
-    "species",
-  ]) {
-    // danbooru doesn't have a species category
-    if (!tagLists[category]) {
-      continue;
-    }
-
-    for (const tag of tagLists[category]) {
-      // limit is optional, but null by default
-      if (typeof limit === "number" && tags[category].length >= options.limit) {
-        break;
-      }
-
-      // <preferenial filtering>
-
-      if (!options.rules.include[category]) {
-        continue;
-      }
-
-      if (!options.rules.blacklist.includes(tag)) {
-        tags[category].push(tag.textContent);
-      }
-
-      // </preferential filtering>
-    }
-  }
-
-  // todo: unthumbnail
-  // imageSrc = unthumbnail(imageSrc);
-
-  return { tags, options, imageSrc, pageUrl };
-}
-
-function gelbooru({ options, imageSrc, pageUrl }) {
-  const tags = {
-    character: [],
-    meta: [],
-    artist: [],
-    general: [],
-    copyright: [],
-  };
-
-  const classes = {
-    character: "tag-type-character",
-    meta: "tag-type-meta",
-    artist: "tag-type-artist",
-    general: "tag-type-general",
-    copyright: "tag-type-copyright",
-  };
-
-  const tagList =
-    document.getElementById("tag-sidebar") || // rule34.xxx
-    document.querySelector("sidebar"); // safebooru.org
-
-  console.log("Tag list: ", tagList);
-
-  const tagLists = {
-    character: tagList.querySelectorAll(`li.${classes.character} a`),
-    meta: tagList.querySelectorAll(`li.${classes.meta} a`),
-    artist: tagList.querySelectorAll(`li.${classes.artist} a`),
-    general: tagList.querySelectorAll(`li.${classes.general} a`),
-    copyright: tagList.querySelectorAll(`li.${classes.copyright} a`),
-  };
-
-  for (const category of [
-    "character",
-    "meta",
-    "artist",
-    "general",
-    "copyright",
-  ]) {
-    const tags = tagLists[category];
-    const newTags = [];
-
-    for (const tag of tags) {
-      if (tag.textContent === "?") {
-        continue;
-      }
-
-      newTags.push(tag);
-    }
-
-    tagLists[category] = newTags;
-  }
-
-  console.log("Tags: ", tagLists);
-
-  for (const category of [
-    "character",
-    "species",
-    "meta",
-    "artist",
-    "general",
-  ]) {
-    for (const tag of tagLists[category] || []) {
-      // limit is optional, but null by default
-      if (typeof limit === "number" && tags[category].length >= options.limit) {
-        break;
-      }
-
-      // <preferenial filtering>
-
-      if (!options.rules.include[category]) {
-        continue;
-      }
-
-      if (!options.rules.blacklist.includes(tag)) {
-        tags[category].push(tag.textContent);
-      }
-
-      // </preferential filtering>
-    }
-  }
-
-  return { tags, options, imageSrc, pageUrl };
 }
 
 /**
  * Catch-all function for all boorus.
- * @param {TagScrapingOptions} options
+ * @param {Object} options
+ * @param {TagScrapingOptions} options.options
+ * @param {string} options.imageSrc
+ * @param {string} options.pageUrl
  * @returns {TagScrapingResult}
  */
 function all({ options, imageSrc, pageUrl }) {
@@ -428,6 +279,7 @@ function all({ options, imageSrc, pageUrl }) {
         pageUrl,
       };
     },
+
     // gel, 34, safebooru, (uses tag-type-*)
     () => {
       // 1. check if this kind of tag exists(used by gelbooru, r34,)
@@ -439,7 +291,7 @@ function all({ options, imageSrc, pageUrl }) {
 
       // 2. Get all tag containers
       const tagContainers = Array.from(
-        document.querySelectorAll("[class*='tag-type-']")
+        document.querySelectorAll("li[class*='tag-type-']")
       );
 
       if (tagContainers.length === 0) {
@@ -464,9 +316,22 @@ function all({ options, imageSrc, pageUrl }) {
 
         for (const container of tagContainers) {
           const tag = findElement(container, (element) => element.tagName === 'A' && element.textContent?.trim() !== '?');
-          const tagType = container.className.match(/tag-type-(\w+)/)[1];
+          let tagType = container.className.match(/tag-type-(\w+)/)[1].toLowerCase().replace(/s$/, '');
           
+          if (!tagType) {
+            console.warn("Error: Failed to get tag type from container: ", container);
+            console.warn("No tag type found in container: ", container);
+            return null;
+          }
+
           if (tag) {
+            console.log("Adding tag of type ", tagType, ": ", tag.textContent);
+            
+            // these sites use the key 'metadata' instead of 'meta'
+            if (tagType === "metadata") {
+              tagType = "meta";
+            }
+
             tags[tagType].push(tag.textContent);
           } else {
             console.warn("No tags found in container: ", container);
@@ -581,36 +446,25 @@ function all({ options, imageSrc, pageUrl }) {
   let result = null;
 
   // Iterate over the strategies and return the first non-null result
-  for (const strategy of strategies) {
-    const res = strategy();
+  for (let i = 0; i < strategies.length; i++) {
+    const strategy = strategies[i];
 
+    console.log("Trying strategy ", i, "...");
+
+    const res = strategy();
+    
     if (res) {
       result = res;
+      console.log("%cStrategy ", i, " succeeded.", "color: green;");
       break;
+    } else {
+      console.log("%cStrategy ", i, " failed.", "color: orange;");
     }
+  }
+
+  if (!result) {
+    console.error("%cNo valid strategy found for scraping tags.", "color: red;");
   }
 
   return result;
-}
-
-function isThumbnail(imageSrc) {
-  if (
-    imageSrc.includes("danbooru") &&
-    imageSrc.includes("sample-") &&
-    imageSrc.endsWith(".jpg")
-  ) {
-    return true;
-  }
-
-  return false;
-}
-
-function unthumbnail(imageSrc) {
-  if (isThumbnail(imageSrc)) {
-    if (imageSrc.includes("danbooru")) {
-      return imageSrc.replace("sample-", "").replace(".jpg", ".png");
-    }
-  }
-
-  return imageSrc;
 }
