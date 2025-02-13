@@ -755,6 +755,8 @@ async function main() {
 
       updateCollapseButtonText(button, container);
     });
+
+    
   }
 
   const tagCategoriesContainer = document.querySelector(".tag-categories");
@@ -925,6 +927,8 @@ async function main() {
   });
 
   updateStatsFirstTime();
+
+  updateStats();
 }
 
 const mouse = {
@@ -1525,13 +1529,15 @@ function randomEmoji() {
 }
 
 function updateStats() {
+
   const projectStatsTags = document.querySelector("#project-stats-tags");
   const projectStatsEntries = document.querySelector("#project-stats-entries");
   const projectStatsImgAvg = document.querySelector(
     "#project-stats-tags-per-image"
   );
 
-  const entries = document.querySelectorAll(".image-entry");
+  // Only count the main entries, not the ones in the recycle bin or elsewhere
+  const entries = document.querySelectorAll("#image-entries .image-entry");
   const textAreas = [];
 
   entries.forEach((entry) => {
@@ -2208,6 +2214,7 @@ function createImageEntry({
       }
     }
   };
+
   const btnRemoveEntry = el.querySelector(".btn-remove-entry");
 
   btnRemoveEntry.addEventListener("click", () => {
@@ -2232,6 +2239,7 @@ function createImageEntry({
       btnRemoveEntry.textContent = "delete";
     }
 
+    updateStats();
     save();
   });
 
@@ -2463,6 +2471,8 @@ async function deleteProject(name) {
   await chrome.storage.local.set({ projects });
 
   console.log("Deleted project: ", name);
+
+  updateStats();
 }
 
 async function setProject(name, project) {
@@ -2474,6 +2484,8 @@ async function setProject(name, project) {
   await chrome.storage.local.set({ projects });
 
   console.log("Set project: ", name);
+
+  updateStats();
 }
 
 /**
@@ -2626,6 +2638,8 @@ function initializeWorkingProject(
   txtAlwaysAppend.value = project.settings.tags.alwaysAppend;
 
   console.log("Initialized project: ", name);
+
+  updateStats();
 }
 
 async function download(filename = "exported.zip") {
