@@ -15,13 +15,6 @@ Auto-tagging via image recognition models is a powerful method for quickly produ
 - Export and import datasets
 - Advanced programmatic features for power users (documentation coming soon)
 
-## Supported sites for auto-tagging
-- Danbooru
-- e621
-- rule34.xxx
-
-More sites may be added in the future
-
 ## Installation
 
 1. First, clone the repository (or download the zip file and extract it wherever you want).
@@ -52,8 +45,8 @@ Visit any browser tab and right-click an image to see the 'webtagger' option, th
 ### Tagging images
 TODO add instructions, (feature is implemented)
 ### Advanced usage
-TODO add instructions, (feature is implemented)
+TODO add instructions, (features implemented)
 
 ## FAQ
 - **Why is the extension not working in Firefox?**
-  - It seems that most other browsers (including Firefox) don't fully support manifest v3 service workers yet. I'll look into porting this over or changing to manifest v2.
+  - It appears that most other browsers (including Firefox) don't fully support manifest v3 service workers yet. I'll look into porting this over or changing to manifest v2.

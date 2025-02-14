@@ -15,12 +15,6 @@ const mirror = {
   },
 };
 
-const supportedBooruSites = [
-  /https?:\/\/danbooru\.donmai\.us\/posts\/\d+/,
-  /https?:\/\/e621\.net\/posts\/\d+/,
-  /https?:\/\/rule34\.xxx\/index\.php\?page=post&s=view&id=\d+/,
-];
-
 function openSidepanel() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0]; // Get the active tab
