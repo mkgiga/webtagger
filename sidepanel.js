@@ -1959,19 +1959,24 @@ function removeImageEntries({
       if (parentElement) {
         switch(parentElement.id) {
           case "image-entries":
+            const recycleBin = document.querySelector("#recycle-bin-entries");
+            recycleBin.appendChild(entry);
             break;
           case "recycle-bin-entries":
             // already in the recycle bin, so just remove it
             entry.remove();
-            break; 
+            break;
         }
       }
     } else {
-
+      // Permanently delete
+      entry.remove();
     }
   }
 
   save();
+
+  updateStats();
 }
 
 function createVisualTag({ text = "" }) {
