@@ -1,6 +1,149 @@
 import { html } from "./lib/html.js";
 import emojis from "./emojis.js";
 import contextMenu from "./context-menu.js";
+/**
+ * Recursively creates a pretty-printed HTML structure for any data type.
+ * @param {any} data - The data to pretty-print.
+ * @param {Set} seen - A Set to track circular references.
+ * @param {boolean} isRoot - Whether this is the root object.
+ * @returns {HTMLElement} - The generated HTML structure.
+ */
+function createPrettyPrintElement(data, seen = new Set(), isRoot = false) {
+  // Handle circular references
+  if (seen.has(data)) {
+    const circularRef = document.createElement("span");
+    circularRef.className = "circular-ref";
+    circularRef.textContent = "[Circular]";
+    return circularRef;
+  }
+
+  // Handle primitive types
+  if (typeof data !== "object" || data === null) {
+    const primitive = document.createElement("span");
+    
+    primitive.className = "primitive";
+    if (typeof data === "string") {
+      // Replace newlines with <br> for strings
+      primitive.innerHTML = data.replace(/\n/g, "<br>");
+    } else {
+      primitive.textContent = String(data);
+    }
+
+    switch(typeof data) {
+      case 'string':
+        primitive.setAttribute("data-type", "string");
+        break;
+      case 'number':
+        primitive.setAttribute("data-type", "number");
+        break;
+      case 'boolean':
+        primitive.setAttribute("data-type", "boolean");
+        break;
+      case 'undefined':
+        primitive.setAttribute("data-type", "undefined");
+        break;
+      case 'function':
+        primitive.setAttribute("data-type", "function");
+        break;
+      case 'null':
+        primitive.setAttribute("data-type", "null");
+        break;
+    }
+
+    return primitive;
+  }
+
+  // Mark this object as seen to detect circular references
+  seen.add(data);
+
+  // Create a container for the object
+  const container = document.createElement("span");
+  container.className = "object-container";
+
+  // Create a toggle button for collapsing/expanding
+  const toggleButton = document.createElement("button");
+
+  toggleButton.className = "toggle-button material-icons";
+  toggleButton.textContent = isRoot ? "keyboard_arrow_down" : "chevron_right";
+
+  toggleButton.addEventListener("click", () => {
+    content.style.display = content.style.display === "none" ? "block" : "none";
+    toggleButton.textContent = content.style.display === "none" ? "chevron_right" : "keyboard_arrow_down";
+  });
+
+  // Create a content area for the object's properties
+  const content = document.createElement("span");
+  content.className = "object-content";
+  content.style.display = isRoot ? "block" : "none"; // Root is expanded by default
+
+  // Iterate over object properties
+  for (const key in data) {
+    if (Object.hasOwnProperty.call(data, key)) {
+      const property = document.createElement("span");
+      property.className = "object-property";
+
+      const keyElement = document.createElement("span");
+      keyElement.className = "property-key";
+      keyElement.textContent = `${key}: `;
+
+      const valueElement = createPrettyPrintElement(data[key], new Set(seen)); // Pass a new Set to avoid sharing seen references
+      valueElement.className = "property-value";
+
+      property.appendChild(keyElement);
+      property.appendChild(valueElement);
+      content.appendChild(property);
+    }
+  }
+
+  // Assemble the container
+  container.appendChild(toggleButton);
+  container.appendChild(content);
+
+  return container;
+}
+
+/**
+ * Creates a console log entry with pretty-printed arguments.
+ * @param {...any} args - The arguments to log.
+ * @returns {HTMLElement} - The generated <li> element.
+ */
+function createConsoleLogEntry(...args) {
+  const logText = document.createElement("span");
+  logText.className = "log-text";
+
+  args.forEach((arg, index) => {
+    const prettyPrinted = createPrettyPrintElement(arg, new Set(), index === 0); // Expand the first argument (root) by default
+    logText.appendChild(prettyPrinted);
+    if (index < args.length - 1) {
+      // Add a space between arguments
+      logText.appendChild(document.createTextNode(" "));
+    }
+  });
+
+  const logEntry = document.createElement("li");
+  logEntry.className = "console.log";
+
+  const logIcon = document.createElement("span");
+  logIcon.className = "log-icon material-icons";
+  logIcon.textContent = "info";
+
+  logEntry.appendChild(logText);
+  logEntry.appendChild(logIcon);
+
+  return logEntry;
+}
+
+// Override console.log
+const consoleLogs = document.querySelector("#console-entries");
+
+const oldConsoleLog = console.log;
+
+console.log = (...args) => {
+  oldConsoleLog(...args);
+
+  const entry = createConsoleLogEntry(...args);
+  consoleLogs.appendChild(entry);
+};
 
 const windowEventListeners = {
   imagesEntry: {
@@ -919,6 +1062,18 @@ async function main() {
     }, 10); // wait for the images to load
   };
 
+  const btnClearConsole = document.querySelector("#btn-clear-console");
+  const btnExportConsole = document.querySelector("#btn-export-console");
+  const consoleEntries = document.querySelector("#console-entries");
+
+  btnClearConsole.addEventListener("click", () => {
+    consoleEntries.innerHTML = "";
+  });
+
+  btnExportConsole.addEventListener("click", () => {
+    // TODO: export console entries, convert html-rendered objects to JSON
+  });
+
   // mouse event loop for checking if we hover over tooltips
 
   window.addEventListener("mousemove", (e) => {
@@ -1027,6 +1182,11 @@ function getSelectedEntries() {
   return document.querySelectorAll("#image-entries .image-entry[selected]");
 }
 
+/**
+ * 
+ * @param {HTMLElement} element The original element from the list of commands in the palette 
+ * @todo Don't initialize a new function for every command -- define them once somewhere and then just call them
+ */
 function initQueryCommand(element) {
   const id = element.id;
 
@@ -1100,6 +1260,7 @@ function initQueryCommand(element) {
       const withoutTags = withoutTagsInput.textContent
         .split(",")
         .map((tag) => tag.trim());
+
       const allEntries = document.querySelectorAll(
         "#image-entries .image-entry"
       );
@@ -1175,9 +1336,37 @@ function initQueryCommand(element) {
       }
     },
 
-    "cmd-add-entries": () => {},
+    /** 
+     * Not sure how this would work, since we can't really "add" entries unless the user imports them.
+     * @todo wait until the specifics of how this command should work before implementing 
+     */
+    "cmd-add-entries": () => {
 
-    "cmd-remove-entries": () => {},
+    },
+
+    "cmd-remove-entries": () => {
+
+      const selection = getSelectedEntries();
+      
+      /**
+       * The only parameter this command has is whether to permanently delete the entries or move them to the recycle bin
+       * Default value is false 
+       * @type {HTMLInputElement}
+       */
+      const chkSendToRecycleBin = cloned.querySelector('#chk-send-to-recycle-bin');
+
+      if (chkSendToRecycleBin.checked) {
+        const recycleBin = document.querySelector("#recycle-bin-entries");
+
+        for (const entry of selection) {
+          recycleBin.appendChild(entry);
+        }
+      } else {
+        removeImageEntries(...selection);
+      }
+
+      updateStats();
+    },
 
     "cmd-select-all-entries": () => {
       document
@@ -1262,7 +1451,24 @@ function initQueryCommand(element) {
         }
       }
     },
-    "cmd-remove-tags": () => {},
+    
+    "cmd-remove-tags": () => {
+      const selection = getSelectedEntries();
+      const tagsInput = cloned.querySelector("#txt-remove-tags");
+
+      const targetTags = tagsInput.textContent.split(",").map((tag) => tag.trim());
+
+      for (const entry of selection) {
+        const textarea = entry.querySelector("textarea");
+        // extract tags into array, remove whitespace
+        let tags = textarea.value.split(",").map((tag) => tag.trim());
+        tags = tags.filter((tag) => !targetTags.includes(tag)).filter((tag) => tag.trim() !== "");
+        
+        // serialize back to textarea
+        textarea.value = tags.join(", ").replace(/,\s*$/g, "").replace(/^\s*,/g, "").trim();
+      }
+    },
+
     "cmd-remove-duplicates": () => {
       const selection = getSelectedEntries();
 
@@ -1277,8 +1483,12 @@ function initQueryCommand(element) {
           .replace(/^, /, "");
       }
     },
-    "cmd-replace-tags": () => {},
-    "cmd-shuffle-tags": () => {},
+    "cmd-replace-tags": () => {
+      
+    },
+    "cmd-shuffle-tags": () => {
+
+    },
   };
 
   if (commands[id]) {
@@ -1736,22 +1946,32 @@ function onImportedTags({
   save();
 }
 
-function removeImageEntries(
-  targetList = document.querySelector(".image-entries"),
-  ...srcs
-) {
-  const entries = targetList.querySelectorAll(".image-entry");
-
+function removeImageEntries({
+  entries = [],
+  recycle = false,
+}) {
   for (const entry of entries) {
-    const img = entry.querySelector("img");
-    if (srcs.includes(img.src)) {
-      entry.remove();
-    }
+    const parentElement = entry.parentElement;
 
-    save();
+    if (recycle) {
+      // Send to recycle bin
+
+      if (parentElement) {
+        switch(parentElement.id) {
+          case "image-entries":
+            break;
+          case "recycle-bin-entries":
+            // already in the recycle bin, so just remove it
+            entry.remove();
+            break; 
+        }
+      }
+    } else {
+
+    }
   }
 
-  return targetList;
+  save();
 }
 
 function createVisualTag({ text = "" }) {

@@ -9,12 +9,21 @@
 :root {
   --primary-color: #0B0F19;
   --secondary-color: #1F2937;
+  --secondary-color-half-opacity: #19202d;
   --border-color: #374151;
   --flair-color: #F26712;
+  --flair-diminished-color: #965730;
   --text-color: #f3f4f6;
   --selection-color: #007bff;
   --dark-color: #1d1d1d;
   --dark-color-text: #616161;
+
+  --string-color: var(--flair-diminished-color);
+  --boolean-color: #f92672;
+  --number-color: #ae81ff;
+  --null-color: #57585f;
+  --undefined-color: #75715e;
+  --function-color: #a6e22e;
 }
 
 
@@ -68,7 +77,7 @@ body {
     scrollbar-width: thin;
     scrollbar-color: var(--primary-color) var(--secondary-color);
     scrollbar-track-color: var(--secondary-color);
-    scrollbar-face-color: var(--primary-color);
+    scrollbar-face-color: black;
     scrollbar-shadow-color: rgba(0, 0, 0, 0.5);
     scrollbar-highlight-color: rgba(0, 0, 0, 0.5);
 
@@ -888,8 +897,13 @@ textarea {
 
     height: 100%;
     overflow: hidden;
-
   }
+
+  .top-bar {
+    max-height: 24px;
+  }
+
+
 
   .categories-container {
     display: flex;
@@ -1103,6 +1117,7 @@ textarea {
   justify-content: flex-start;
   padding: 0.125rem;
   margin: 0;
+  min-height: 24px;
 
   user-select: none;
 
@@ -1235,6 +1250,284 @@ button.tab {
    * we have to calculate the angle of the cut-off since the width of the tab is not fixed
    */
   clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 25%, calc(100% - 0.5rem) 0);
+}
+
+@keyframes appear-from-left {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+#console {
+  display: flex;
+  flex-direction: column;
+
+  .top-bar {
+    .console-actions {
+      display: flex;
+      flex-direction: row;
+      gap: 0.5rem;
+      padding: 0.25rem;
+      margin-left: auto;
+    }
+  }
+
+  ul#console-entries {
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+    margin: 0;
+    padding-inline-start: 0;
+
+    &,
+    * {
+      font-size: 12px;
+      font-family: "IBM Plex Mono", monospace;
+    }
+
+    overflow: auto;
+
+    & > :nth-child(odd) {
+      background-color: var(--primary-color);
+
+      * {
+        background-color: var(--primary-color);
+      }
+
+      .object-container {
+        background-color: var(--primary-color);
+      }
+
+      /* Adjust the vertical line for the last property */
+      .object-property:last-child::before {
+        position: absolute;
+        left: -1rem;
+        top: 50%;
+        height: 50%;
+        width: 1rem;
+        background-color: var(--primary-color);
+        z-index: 1;
+      }
+    }
+
+    & > :nth-child(even) {
+      background-color: var(--secondary-color-half-opacity);
+
+      .log-text {
+        * {
+          background-color: var(--secondary-color-half-opacity);
+        }
+      }
+
+      .object-container {
+        background-color: var(--secondary-color-half-opacity);
+      }
+
+      /* Adjust the vertical line for the last property */
+      .object-property:last-child::before {
+        position: absolute;
+        left: -1rem;
+        top: 50%;
+        height: 50%;
+        width: 1rem;
+        background-color: var(--secondary-color-half-opacity);
+        z-index: 1;
+      }
+    }
+
+    li.console\.log {
+
+      display: flex;
+      flex-direction: row;
+      padding-left: 0.5rem;
+
+      span.log-text {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        text-shadow: 0 0 0.25rem var(--primary-color);
+        user-select: text;
+        padding: 0.25rem;
+        margin: 0;
+        width: 100%;
+        flex-grow: 1;
+        background-color: transparent;
+        transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+
+      .log-icon {
+        padding: 0.5rem;
+        font-size: 14px;
+        font-family: "Material Icons";
+        background-color: none;
+        user-select: none;
+      }
+
+      /* Root container for the log entry */
+      .log-text {
+        display: block;
+        white-space: nowrap;
+        overflow-x: auto;
+
+        /* Containers without a parent should not have a tree line */
+        &>.object-container::before {
+          display: none !important;
+        }
+
+      }
+
+      /* Container for nested objects */
+      .object-container {
+        display: inline-block;
+        white-space: nowrap;
+        margin-left: 1rem;
+        position: relative;
+      }
+
+
+      /* Tree lines */
+      .object-container::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -0.5rem;
+        width: 1px;
+        height: 100%;
+        background-color: var(--border-color);
+      }
+
+      .object-property {
+        display: flex;
+        align-items: baseline;
+        position: relative;
+      }
+
+      /* Horizontal line connecting properties to the parent */
+      .object-property::before {
+        content: "";
+        position: absolute;
+        top: 8px;
+        left: -0.5rem;
+        width: 0.5rem;
+        height: 1px;
+        background-color: var(--border-color);
+      }
+
+
+
+      /* Horizontal line for the last property */
+      .object-property:last-child::after {
+        content: "";
+        /* Required for pseudo-elements */
+        position: absolute;
+        left: -0.5rem;
+        top: 8px;
+        height: 1px;
+        width: 0.5rem;
+        background-color: var(--border-color);
+        z-index: 2;
+        /* Ensure this is above the ::before pseudo-element */
+      }
+
+      /* Toggle button styling */
+      .toggle-button {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        margin-right: 0.5rem;
+        font-size: 16px;
+        color: var(--text-color);
+        font-family: "Material Icons";
+      }
+
+      /* Content area for nested objects */
+      .object-content {
+        margin-left: 1rem;
+        padding-left: 0.5rem;
+        border-left: 1px solid var(--border-color);
+      }
+
+      /* Primitive values */
+      .primitive {
+        color: var(--text-color);
+      }
+
+      /* Circular references */
+      .circular-ref {
+        color: var(--warning-color);
+        font-style: italic;
+      }
+
+      .property-value {
+        &[data-type="string"] {
+          color: var(--string-color);
+        }
+
+        &[data-type="number"] {
+          color: var(--number-color);
+        }
+
+        &[data-type="boolean"] {
+          color: var(--boolean-color);
+        }
+
+        &[data-type="null"] {
+          color: var(--null-color);
+        }
+
+        &[data-type="undefined"] {
+          color: var(--undefined-color);
+        }
+      }
+    }
+  }
+
+  .console-input {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    font-size: 12px;
+
+    margin-bottom: 1rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    margin-top: 0;
+
+    input[type="text"] {
+      text-shadow: 0 0 0.25rem var(--primary-color);
+      font-family: "IBM Plex Mono", monospace;
+      outline: none;
+      border: none;
+      padding: 0.25rem;
+      margin: 0;
+      height: 24px;
+      width: 100%;
+      flex-grow: 1;
+      background-color: var(--primary-color);
+    }
+
+    button.material-icons {
+      font-size: 14px;
+      padding: 0.25rem;
+      margin: 0;
+      width: 24px;
+      height: 24px;
+    }
+  }
 }
 
 #queries {
@@ -1448,7 +1741,7 @@ button.tab {
       overflow-y: auto;
       overflow-x: hidden;
 
-      padding:0;
+      padding: 0;
       margin-bottom: 0.5rem;
       margin-right: 0.5rem;
       margin-top: 0;
@@ -1913,7 +2206,7 @@ select[disabled] {
     scrollbar-width: thin;
     scrollbar-color: var(--primary-color) var(--secondary-color);
     scrollbar-track-color: var(--secondary-color);
-    scrollbar-face-color: var(--primary-color);
+    scrollbar-face-color: black;
 
     .image-entry {
       display: grid;

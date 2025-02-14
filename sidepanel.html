@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html lang="en">
   <head>
@@ -81,7 +81,6 @@
 
       <div class="menu-separator"></div>
 
-
       <input
         type="search"
         class="search-bar"
@@ -89,13 +88,12 @@
         placeholder="Search tags ..."
       />
       <button
-      class="btn-export material-icons"
-      title="Download the dataset as a zip file"
-      id="btn-export"
-    >
-      file_download
-    </button>
-
+        class="btn-export material-icons"
+        title="Download the dataset as a zip file"
+        id="btn-export"
+      >
+        file_download
+      </button>
     </div>
 
     <div class="common-project-settings" id="common-project-settings">
@@ -154,6 +152,9 @@
         <button class="tab" id="tab-preferences" for="preferences">
           Preferences
         </button>
+
+        <!-- Logs -->
+        <button class="tab" id="tab-console" for="console">Console</button>
       </div>
 
       <div
@@ -344,7 +345,25 @@
                 </span>
               </span>
             </li>
-
+            <li class="query-command" id="cmd-remove-entries">
+              <span class="query-component-top-bar">
+                <div class="query-command-icons">
+                  <span class="material-icons">search</span>
+                  <span class="material-icons">delete</span>
+                </div>
+                <span class="query-component-title">
+                  Selection: Remove entries
+                </span>
+              </span>
+              <span class="command-params">
+                <span class="param">
+                  <label for="chk-send-to-recycle-bin"
+                    >Send to recycle bin</label
+                  >
+                  <input type="checkbox" id="chk-send-to-recycle-bin" />
+                </span>
+              </span>
+            </li>
             <hr class="command-separator" />
             <li class="query-command" id="cmd-add-tags">
               <span class="query-component-top-bar">
@@ -651,6 +670,29 @@
           </span>
         </div>
       </div>
+
+      <div class="console tab-child" id="console">
+        <div class="top-bar">
+
+          <h4 style="margin-left: 0.5rem;">Logs</h4>
+
+          <div class="console-actions">
+            <button
+              class="material-icons"
+              title="Clear console"
+              id="btn-clear-console"
+            >
+              clear
+            </button>
+          </div>
+        </div>
+
+        <ul id="console-entries"></ul>
+        
+        <div class="console-input">
+          <input type="text" id="txt-console-input" placeholder="Type a command..." />
+          <button class="material-icons" id="btn-console-input">send</button>
+        </div>
     </div>
 
     <!-- Container for entries that have been deleted -->
