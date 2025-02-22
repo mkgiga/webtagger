@@ -1739,7 +1739,6 @@ button.tab {
       }
     }
 
-
     ul#query {
       display: flex;
       flex-direction: column;
@@ -1754,12 +1753,10 @@ button.tab {
       margin-top: 0;
       gap: 0.125rem;
 
-
       border-left: 1px solid var(--border-color);
-
       width: 100%;
-
-      background-color: var(--dark-color);
+      
+      background-color: black;
       flex-grow: 1;
 
 
@@ -1894,8 +1891,9 @@ button.tab {
     span.wrappable-text-input {
       text-wrap: wrap;
       display: inline-block;
+
       /* To imply that there is a field, and it is editable */
-      border-bottom: 2px dotted var(--primary-color);
+      border-bottom: 2px dotted var(--dark-color-text);
       min-width: 48px;
       width: 100%;
       content: "value";
@@ -2709,8 +2707,9 @@ select[disabled] {
       .pref-group-item-value.wrappable-text-input {
         text-wrap: wrap;
         display: inline-block;
+        background-color: transparent;
         /* To imply that there is a field, and it is editable */
-        border-bottom: 2px dotted var(--primary-color);
+        border-bottom: 2px dotted var(--dark-color-text);
         min-width: 48px;
         width: 100%;
         content: "value";
