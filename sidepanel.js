@@ -323,8 +323,11 @@ function getCurrentProjectName() {
 }
 
 async function main() {
+  setVersionLabel();
+
   // iterate the document and add tooltips to all elements with the [todo] attribute
   const tooltipElements = document.querySelectorAll("[todo]");
+
   for (const el of tooltipElements) {
     if (el.hasAttribute("title")) {
       el.setAttribute("title", el.getAttribute("title") + " (Coming soon...)");
@@ -3992,6 +3995,16 @@ function recycleBinRestoreEntry(entry) {
   });
 
   entryList.appendChild(restoredEntry);
+}
+
+function setVersionLabel() {
+  const lblVersion = document.querySelector("#header-version");
+  const version = getVersion();
+  lblVersion.textContent = `v${version}`;
+}
+
+function getVersion() {
+  return chrome.runtime.getManifest().version;
 }
 
 document.addEventListener("DOMContentLoaded", main);

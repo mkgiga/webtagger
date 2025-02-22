@@ -22,7 +22,7 @@
   --boolean-color: #f92672;
   --number-color: #ae81ff;
   --null-color: #57585f;
-  --undefined-color:rgb(15, 15, 11);
+  --undefined-color: rgb(15, 15, 11);
   --function-color: #a6e22e;
 }
 
@@ -253,20 +253,27 @@ body {
 
     align-items: center;
 
-    h2 {
-      margin: 0;
-      padding: 0.5rem;
-      text-align: center;
-      justify-self: flex-start;
-      flex-shrink: 0;
+    #header-heading {
+      h2 {
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        justify-self: flex-start;
+        flex-shrink: 0;
 
-      text-shadow: 2px 2px 2px var(--primary-color);
-      font-size: 1.5rem;
-      font-weight: 400;
-      font-family: "IBM Plex Mono", monospace;
-      font-style: oblique;
+        text-shadow: 2px 2px 2px var(--primary-color);
+        font-size: 1.5rem;
+        font-weight: 400;
+        font-family: "IBM Plex Mono", monospace;
+        font-style: oblique;
 
-      color: var(--text-color);
+        color: var(--text-color);
+      }
+
+      p {
+        margin: 0;
+        padding: 0;
+      }
     }
 
 
@@ -1301,7 +1308,7 @@ button.tab {
 
     overflow: auto;
 
-    & > :nth-child(odd) {
+    &> :nth-child(odd) {
       background-color: var(--primary-color);
 
       * {
@@ -1324,7 +1331,7 @@ button.tab {
       }
     }
 
-    & > :nth-child(even) {
+    &> :nth-child(even) {
       background-color: var(--secondary-color-half-opacity);
 
       .log-text {
