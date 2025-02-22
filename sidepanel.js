@@ -1075,7 +1075,8 @@ async function main() {
     consoleEntries.innerHTML = "";
   });
 
-  btnExportConsole.addEventListener("click", () => {
+  // doesn't exist yet
+  btnExportConsole?.addEventListener("click", () => {
     // TODO: export console entries, convert html-rendered objects to JSON
   });
 
