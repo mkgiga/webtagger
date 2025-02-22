@@ -1,6 +1,7 @@
 import { html } from "./lib/html.js";
 import emojis from "./emojis.js";
 import contextMenu from "./context-menu.js";
+
 /**
  * Recursively creates a pretty-printed HTML structure for any data type.
  * @param {any} data - The data to pretty-print.
@@ -9,6 +10,7 @@ import contextMenu from "./context-menu.js";
  * @returns {HTMLElement} - The generated HTML structure.
  */
 function createPrettyPrintElement(data, seen = new Set(), isRoot = false) {
+
   // Handle circular references
   if (seen.has(data)) {
     const circularRef = document.createElement("span");
@@ -138,7 +140,7 @@ const consoleLogs = document.querySelector("#console-entries");
 
 const oldConsoleLog = console.log;
 
-console.log = (...args) => {
+console.log = function(...args) {
   oldConsoleLog(...args);
 
   const entry = createConsoleLogEntry(...args);
@@ -1955,7 +1957,6 @@ function removeImageEntries({
 
     if (recycle) {
       // Send to recycle bin
-
       if (parentElement) {
         switch(parentElement.id) {
           case "image-entries":
@@ -2171,9 +2172,25 @@ function createVisualTag({ text = "" }) {
     console.log(ctxmenu);
   });
 
-  el.addEventListener("click", (e) => {});
+  // Because we are using double click to edit the tag, we need to have a little delay to confirm that the user is not double clicking
+  let cancelTmr = null;
+  const APPLY_CLICK_DELAY = 200;
+
+  el.querySelector(".visual-tag").addEventListener("click", (e) => {
+
+    // Cancelable timer to apply the tags to the entries,
+    // controlled by the double click event
+    cancelTmr = setTimeout(() => {
+      applySelectedTagsToEntries();
+    }, APPLY_CLICK_DELAY);
+  });
 
   textEl.addEventListener("dblclick", (e) => {
+    
+    if (cancelTmr) {
+      clearTimeout(cancelTmr);
+    }
+
     if (textEl.hasAttribute("contenteditable")) {
       return;
     } else {
@@ -2208,6 +2225,8 @@ function createVisualTag({ text = "" }) {
         }
       });
     }
+
+    save();
   });
 
   el.querySelector(".btn-delete-tag").addEventListener("click", () => {
@@ -3964,7 +3983,7 @@ function recycleBinRestoreEntry(entry) {
 
   const src = cloned.querySelector("img").src;
   const tags = cloned.querySelector("textarea").value.split(", ");
-
+  
   const restoredEntry = createImageEntry({
     src,
     tags,

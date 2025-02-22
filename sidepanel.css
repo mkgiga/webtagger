@@ -22,7 +22,7 @@
   --boolean-color: #f92672;
   --number-color: #ae81ff;
   --null-color: #57585f;
-  --undefined-color: #75715e;
+  --undefined-color:rgb(15, 15, 11);
   --function-color: #a6e22e;
 }
 
@@ -854,7 +854,7 @@ textarea {
     }
 
     .visual-tag:not([contenteditable]) {
-      cursor: default;
+      cursor: pointer;
       user-select: none;
     }
 
