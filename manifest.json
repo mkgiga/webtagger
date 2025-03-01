@@ -1,27 +1,23 @@
 {
   "manifest_version": 3,
-  "name": "webtagger",
-  "description": "This extension lets you build image collections for tagging directly in the browser via a sidebar and various context menu controls.",
+  "name": "Dr. Style",
+  "description": "Inject and design themes for any website directly in the side panel.",
   "version": "1.0.0",
   
   "permissions": [
     "storage",
     "unlimitedStorage",
+    "tabs",
     "activeTab",
     "sidePanel",
-    "contextMenus"
+    "contextMenus",
+    "scripting"
   ],
 
   "action": {
     "default_popup": "./popup/popup.html"
   },
   
-  "icons": {
-    "48": "icon-48.png",
-    "96": "icon-96.png",
-    "128": "icon-128.png"
-  },
-
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -47,15 +43,6 @@
         "mac": "Alt+Z"
       },
       "description": "Opens the side panel"
-    },
-
-    "add-booru-image": {
-      "suggested_key": {
-        "default": "Alt+Q",
-        "mac": "Alt+Q"
-      },
-      
-      "description": "Adds the image to the sidebar from the current tab if you are on an imageboard."
     }
   }
 }

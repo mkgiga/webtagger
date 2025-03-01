@@ -1,0 +1,60 @@
+/* Style Variables */
+
+:root {
+  --font-mono: "Ubuntu Mono", monospace;
+  --font-sans: "Open Sans", sans-serif;
+  --font-serif: "Quicksand", serif;
+
+  --ui-color-container-background: #f0f0f0;
+  --ui-color-container-secondary: #ddd;
+  --ui-color-container-tertiary: #aaa;
+  --ui-color-text-primary: #333;
+  --ui-color-text-secondary: #666;
+  --ui-color-text-faded: #888;
+  --ui-color-border-primary: #999;
+
+  --ui-color-feedback-good: rgb(42, 164, 89);
+  --ui-color-feedback-bad: rgb(164, 42, 42);
+  --ui-color-feedback-neutral: rgb(42, 42, 164);
+  --ui-color-feedback-warning: rgb(164, 164, 42);
+
+  --ui-color-item-toggle-background-color: #dadada;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font-family: "Quicksand", sans-serif;
+  font-size: 14px;
+}
+
+* {
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+[v], [vertical], [col], [column] { display: flex; flex-direction: column; }
+[h], [horizontal], [row], [row] { display: flex; flex-direction: row; }
+[center-h], [center-horizontal] { justify-content: center; }
+[center-v], [center-vertical] { align-items: center; }
+[center], [center-all] { justify-content: center; align-items: center; }
+[w-full] { width: 100%; }
+[h-full] { height: 100%; }
+[font-mono] { font-family: var(--font-mono); }
+[font-sans] { font-family: var(--font-sans); }
+[font-serif] { font-family: var(--font-serif); }
+[hidden] { display: none; }
+[disabled] { cursor: not-allowed; }
+
+/* Disabling built-in styles */
+[no-outline] { outline: none; }
+textarea[no-outline] { &:focus { outline: none; } }
+[no-select] { user-select: none; }
+[no-drag] { -webkit-user-drag: none; user-drag: none; }
+[no-scroll] { overflow: hidden; }
+[no-scroll-x] { overflow-x: hidden; }
+[no-scroll-y] { overflow-y: hidden; }
+

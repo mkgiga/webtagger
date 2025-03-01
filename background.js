@@ -2,19 +2,6 @@ chrome.sidePanel.setPanelBehavior({
   openPanelOnActionClick: true,
 });
 
-/**
- * @type {Document | null}
- */
-let sidePanelDocument = null;
-
-const mirror = {
-  images: {},
-
-  addImage: (src = "", tags = []) => {
-    mirror.images[src] = { src, tags };
-  },
-};
-
 function openSidepanel() {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0]; // Get the active tab
@@ -35,9 +22,6 @@ function openSidepanel() {
 
 const commands = {
   "open-sidepanel": openSidepanel,
-  "add-booru-image": () => {
-    console.log("Triggered add-booru-image command");
-  },
 }
 
 
@@ -50,34 +34,20 @@ function registerCommands() {
   }
 }
 
-function initContextMenu() {
-
-  chrome.contextMenus.create({
-    id: "addImage",
-    title: "Add image",
-    contexts: ["image"],
-    targetUrlPatterns: ["<all_urls>"],
-    documentUrlPatterns: ["<all_urls>"],
-    type: "normal",
-  });
-
-  chrome.contextMenus.create({
-    id: "addBooruImage",
-    title: "Add image (autotag)",
-    contexts: ["image"],
-    targetUrlPatterns: ["<all_urls>"],
-    documentUrlPatterns: ["<all_urls>"],
-    type: "normal",
-  });
-}
-
-let a = {
-  name: "buyItem",
-  params: { 
-    id: "43", 
-    count: 23 
-  },
-};
+// Middleman between the sidepanel and the content script
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "inject-css") {
+    chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+      if (tabs[0]?.id) {
+        chrome.tabs.sendMessage(tabs[0].id, message, response => {
+          sendResponse(response);
+        });
+        return true; // Keep message channel open for async response
+      }
+    });
+    return true; // Indicates async response
+  }
+});
 
 // we want to initialize the commands and context menu at the start
 chrome.runtime.onInstalled.addListener(() => {
@@ -85,14 +55,7 @@ chrome.runtime.onInstalled.addListener(() => {
   
   console.log("Registering command listeners...");
   registerCommands();
-
-  console.log("Initializing context menu options...");
-  initContextMenu();
 });
-
-function addImage(request, sender, sendResponse) {}
-
-function removeImage(request, sender, sendResponse) {}
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Extension installed");
