@@ -1674,7 +1674,7 @@ button.tab {
       }
     }
   }
-
+  
   .query-container {
     overflow: hidden;
 
@@ -1755,11 +1755,9 @@ button.tab {
 
       border-left: 1px solid var(--border-color);
       width: 100%;
-      
+
       background-color: black;
       flex-grow: 1;
-
-
 
       .query-command {
 
@@ -2123,15 +2121,25 @@ hr.command-separator {
 }
 
 input[type="checkbox"] {
+  position: relative;
   appearance: none;
-  background-color: var(--secondary-color);
+  display: inline-block;
   color: var(--text-color);
-  border: none;
+  background-color: var(--secondary-color);
+  border: 1px solid var(--border-color);
+  cursor: pointer;
   width: 12px;
   height: 12px;
 
   &:checked {
-    background-color: var(--border-color);
+    background-color: var(--border-color) !important;
+    &:after {
+      position: absolute;
+      content: "✔";
+      font-size: 12px;
+      transform: translate(1px, -3px);
+      color: var(--text-color);
+    }
     color: var(--text-color);
   }
 
@@ -2146,17 +2154,6 @@ input[type="checkbox"] {
     /* stroke around the text for extra visibility */
     paint-order: stroke fill;
     -webkit-text-stroke: 0.2em var(--primary-color);
-  }
-
-  &::placeholder {
-    color: var(--dark-color-text);
-    text-shadow: 0 0 0.25rem var(--primary-color);
-  }
-
-  &:not(:focus)::placeholder {
-    opacity: 0.5;
-    color: var(--dark-color-text), 0.5;
-    text-shadow: 0 0 0.25rem var(--primary-color);
   }
 }
 
@@ -2593,253 +2590,34 @@ select[disabled] {
 }
 
 #preferences {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-start;
-
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust minmax values as needed */
+  gap: 0.5rem;
   width: 100%;
-  height: 100%;
-  gap: 0.25rem;
-
-  padding: 0rem;
-
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: flex-start;
-
-
-
-  /* a group of key-value pair inputs that get translated into a JSON object */
-  .pref-group {
-    /* items wrap to the next row when they reach the end of the container */
-    display: inline-flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: flex-start;
-
-    gap: 0.25rem;
-    padding: 0.25rem;
-
-    .pref-group-title {
-      font-size: 1rem;
-      font-weight: 400;
-      margin: 0;
-      padding: 0.25rem;
-
-      border-bottom: 2px solid var(--primary-color);
-    }
-
-    .pref-group-item {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr;
-      gap: 0.25rem;
-      padding: 0.25rem;
-      margin: 0;
-      width: 100%;
-      flex-wrap: nowrap;
-      justify-content: flex-start;
-
-      label.pref-group-item-key {
-        font-size: 0.75rem;
-        font-weight: 400;
-        margin: 0;
-        padding: 0.25rem;
-        text-align: left;
-        width: 100%;
-      }
-
-      input.pref-group-item-value:not(.wrappable-text-input) {
-        background-color: var(--secondary-color);
-        color: var(--text-color);
-        border: none;
-        padding: 0.5rem;
-        margin: 0;
-        font-size: 1rem;
-        text-shadow: 0 0 0.25rem var(--primary-color);
-        user-select: text;
-
-        border-bottom: 2px solid var(--primary-color);
-        border-bottom-style: ridge;
-
-        &::placeholder {
-          color: var(--text-color);
-          text-shadow: 0 0 0.25rem var(--primary-color);
-        }
-
-        &:not(:focus)::placeholder {
-          opacity: 0.5;
-          color: var(--text-color), 0.5;
-          text-shadow: 0 0 0.25rem var(--primary-color);
-
-          outline: none;
-        }
-
-        &:hover {
-          background-color: var(--secondary-color);
-          color: var(--text-color);
-        }
-
-        &:focus {
-          background-color: var(--border-color);
-          color: var(--text-color);
-          /* stroke around the text for extra visibility */
-          paint-order: stroke fill;
-          -webkit-text-stroke: 0.2em var(--primary-color);
-        }
-
-        &::placeholder {
-          color: var(--dark-color-text);
-          text-shadow: 0 0 0.25rem var(--primary-color);
-        }
-
-        &:not(:focus)::placeholder {
-          opacity: 0.5;
-          color: var(--dark-color-text), 0.5;
-          text-shadow: 0 0 0.25rem var(--primary-color);
-        }
-      }
-
-      .pref-group-item-value.wrappable-text-input {
-        text-wrap: wrap;
-        display: inline-block;
-        background-color: transparent;
-        /* To imply that there is a field, and it is editable */
-        border-bottom: 2px dotted var(--dark-color-text);
-        min-width: 48px;
-        width: 100%;
-        content: "value";
-
-        padding: 0.125rem;
-        margin: 0;
-
-        &::placeholder {
-          color: var(--dark-color-text);
-          text-shadow: 0 0 0.25rem var(--primary-color);
-          cursor: text;
-          content: "value";
-        }
-
-        font-size: inherit;
-        line-height: inherit;
-
-        &:not([font]) {
-          font-family: "IBM Plex Mono", monospace;
-        }
-
-        &[font="sans-serif"] {
-          font-family: "Raleway", sans-serif;
-        }
-
-        &[font="monospace"] {
-          font-family: "IBM Plex Mono", monospace;
-        }
-
-        &:hover {
-          background-color: var(--secondary-color);
-          color: var(--text-color);
-        }
-
-        &:focus {
-          background-color: var(--border-color);
-          color: var(--text-color);
-          /* stroke around the text for extra visibility */
-          paint-order: stroke fill;
-          -webkit-text-stroke: 0.2em var(--primary-color);
-          outline: none;
-        }
-
-        &::placeholder {
-          color: var(--dark-color-text);
-          text-shadow: 0 0 0.25rem var(--primary-color);
-        }
-
-        &:not(:focus)::placeholder {
-          opacity: 0.5;
-          color: var(--dark-color-text), 0.5;
-          text-shadow: 0 0 0.25rem var(--primary-color);
-        }
-      }
-    }
-  }
+  padding: 0.5rem;
 }
 
-.coming-soon {
-
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100%;
-
-  z-index: 2;
-  background-color: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(0.25rem);
-
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-
-  &::before {
-    position: relative;
-    content: "Coming soon (sorry!)";
-    font-size: 2rem;
-    font-weight: 400;
-    color: white;
-    paint-order: stroke fill;
-    -webkit-text-stroke: 4px black;
-    text-shadow: 0 0 0.25rem var(--primary-color);
-    user-select: none;
-    padding: 0.5rem;
-    margin: 0;
-    place-self: center;
-    z-index: 4;
-  }
-
-  &::after {
-    position: absolute;
-    width: 100%;
-    height: 4rem;
-
-    /* yellow warning tape with repeating diagonal black stripes */
-    background-image: repeating-linear-gradient(45deg,
-        black,
-        black 1rem,
-        yellow 1rem,
-        yellow 2rem);
-
-    background-size: calc(200vw) 4rem;
-
-    place-self: center;
-    align-self: center;
-    vertical-align: center;
-    justify-self: center;
-
-    /* Ensure the background is larger than the visible area */
-    background-size: 200% 100%;
-    background-repeat: repeat;
-    background-position: 0 0;
-
-    animation: warning-tape-scrolling 2s linear infinite;
-  }
+fieldset {
+  display: grid;
+  grid-template-columns: min-content 1fr;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  margin: 0;
+  border: 2px solid var(--border-color);
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+  font-size: 1rem;
+  text-shadow: 0 0 0.25rem var(--primary-color);
+  user-select: none;
 }
 
-@keyframes warning-tape-scrolling {
-  0% {
-    background-position: 0 0;
-  }
-
-  100% {
-    background-position: -100vw 0;
-
-  }
-}
-
-*&>.coming-soon {
-  position: relative;
+legend {
+  padding: 0.25rem;
+  margin: 0;
+  color: var(--text-color);
+  font-size: 12px;
+  text-shadow: 0 0 0.25rem var(--primary-color);
+  user-select: none;
 }
 
 #selected-tags {

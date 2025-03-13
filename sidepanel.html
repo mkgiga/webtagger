@@ -532,113 +532,13 @@
       </div>
 
       <div class="preferences tab-child" id="preferences">
-        <!-- Contains preferences groups, each having its own list of key-value inputs -->
-
-        <span class="coming-soon"></span>
-
-        <div class="pref-group">
-          <span class="pref-group-title">
-            <span class="material-icons">settings</span>
-            <h5>General</h5>
-          </span>
-        </div>
-
-        <div class="pref-group">
-          <span class="pref-group-title">
-            <span class="material-icons">tag</span>
-            <h5>Auto-tagging</h5>
-          </span>
-
-          <span class="pref-group-item">
-            <label for="txt-auto-tag-blacklist" class="pref-group-item-key">
-              Blacklist
-            </label>
-            <span
-              class="wrappable-text-input pref-group-item-value"
-              id="txt-auto-tag-blacklist"
-              title="Blacklist"
-              contenteditable="true"
-              placeholder="lowres, questionable, explicit, ... (comma separated)"
-            ></span>
-          </span>
-
-          <span class="pref-group-item">
-            <label for="txt-auto-tag-sorting" class="pref-group-item-key">
-              Sorting
-            </label>
-            <input
-              type="text"
-              id="txt-auto-tag-sorting"
-              class="pref-group-item-value"
-              placeholder="1boy, 1girl, {copyright}, {character}, {artist}, {general}, {meta}"
-            />
-          </span>
-
-          <span class="pref-group-item">
-            <label for="txt-auto-tag-alias" class="pref-group-item-key">
-              Alias
-            </label>
-
-            <span
-              class="wrappable-text-input pref-group-item-value"
-              id="txt-auto-tag-alias"
-              title="Alias"
-              contenteditable="true"
-              placeholder="tag1:tag2, tag3:tag4, ..."
-            ></span>
-          </span>
-        </div>
-
-        <div class="pref-group">
-          <span class="pref-group-title">
-            <span class="material-icons">appearance</span>
-            <h5>Appearance</h5>
-          </span>
-        </div>
-
-        <div class="pref-group">
-          <span class="pref-group-title">
-            <span class="material-icons">warning</span>
-            <h5>Warnings</h5>
-          </span>
-
-          <span class="pref-group-item">
-            <label for="chk-warn-on-low-res" class="pref-group-item-key">
-              Warn when adding low-res images
-            </label>
-            <input type="checkbox" id="chk-warn-on-low-res" />
-          </span>
-
-          <span class="pref-group-item">
-            <label
-              for="num-warn-on-low-res-min-width"
-              class="pref-group-item-key"
-            >
-              Preferred width minimum (px)
-            </label>
-            <input
-              type="number"
-              id="num-warn-on-low-res-min-width"
-              class="pref-group-item-value"
-              placeholder="0"
-            />
-          </span>
-
-          <span class="pref-group-item">
-            <label
-              for="num-warn-on-low-res-min-height"
-              class="pref-group-item-key"
-            >
-              Preferred height minimum (px)
-            </label>
-            <input
-              type="number"
-              id="num-warn-on-low-res-min-height"
-              class="pref-group-item-value"
-              placeholder="0"
-            />
-          </span>
-        </div>
+        <form id="form-preferences">
+          <fieldset id="preferences-booru-tag-import">
+            <legend>Booru Tag Import</legend>
+            <label for="chk-replace-underscores-with-spaces">Replace underscores with spaces</label>
+            <input type="checkbox" id="chk-replace-underscores-with-spaces" checked />
+          </fieldset>
+        </form>
       </div>
 
       <div class="console tab-child" id="console">
