@@ -360,7 +360,8 @@ async function main() {
   // test: save the projects to local storage
   await save();
 
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
+  chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+
     if (info.menuItemId === "addImage") {
       // check if recycle bin has this image
       const recycleBinEntries = document.querySelectorAll(
@@ -382,10 +383,36 @@ async function main() {
 
         return;
       }
-      addImageEntries(entryList, false, {
-        src: info.srcUrl,
-        pageUrl: tab.url,
+
+      // Ensure the image data isn't lost later from 404/session expiration
+      const fetched = await fetch(info.srcUrl);
+      console.log(`Fetched image from ${info.srcUrl}`);
+
+      const blob = await fetched.blob();
+      console.log(`Converted image to blob`);
+
+      const arrBuffer = await blob.arrayBuffer();
+      console.log(`Converted blob to array buffer`);
+
+      const base64 = btoa(
+        new Uint8Array(arrBuffer).reduce(
+          (data, byte) => data + String.fromCharCode(byte),
+          ""
+        )
+      );
+
+      console.log(`Converted array buffer to base64`);
+      
+      const entry = createImageEntry({
+        src: `data:${blob.type};base64,${base64}`,
+        pageUrl: info.pageUrl,
+        calledByLoad: false,
+        tags: [], 
       });
+
+      console.log(`Created image entry`);
+
+      entryList.appendChild(entry);
     }
 
     if (info.menuItemId === "addBooruImage") {
@@ -1017,6 +1044,8 @@ async function main() {
         btnExportTagCategories.offsetHeight / 2,
       text: "Exported categories!",
     });
+
+    URL.revokeObjectURL(url);
   });
 
   function entryBackdropBlur(state = true) {
@@ -1923,7 +1952,7 @@ function addImageEntries(
   return targetList;
 }
 
-function onImportedTags({
+async function onImportedTags({
   tags = {
     general: [],
     artist: [],
@@ -1947,8 +1976,19 @@ function onImportedTags({
 
   // doesn't exist, so let's add it
   if (!entry) {
+    // fetch the image and convert it to base64 to avoid session issues
+    const file = await fetch(imageSrc);
+    const blob = await file.blob();
+    const arrayBuffer = await blob.arrayBuffer();
+    const base64 = btoa(
+      new Uint8Array(arrayBuffer).reduce(
+        (data, byte) => data + String.fromCharCode(byte),
+        "",
+      ),
+    );
+    
     addImageEntries(document.querySelector(".image-entries"), false, {
-      src: imageSrc,
+      src: `data:${blob.type};base64,${base64}`,
       tags: flattened,
       pageUrl,
     });
