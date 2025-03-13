@@ -2999,10 +2999,10 @@ async function promptImportFiles(e) {
     }
 
     // Unpack the zip files
-    for (const zipFile of zipFiles) {
+    for await (const zipFile of zipFiles) {
       const zip = await JSZip.loadAsync(zipFile);
 
-      for (const file of Object.values(zip.files)) {
+      for await (const file of Object.values(zip.files)) {
         const name = file.name;
         const extension = name.split(".").pop();
 
@@ -3010,8 +3010,8 @@ async function promptImportFiles(e) {
           const tags = await file.async("text");
           textFiles[name] = tags;
         } else {
-          const blob = await file.async("blob");
-          const url = URL.createObjectURL(blob);
+          const b64 = await file.async("base64");
+          const url = `data:image/${extension};base64,${b64}`;
           imageFiles.push({ name, url });
         }
       }
