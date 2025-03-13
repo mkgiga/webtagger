@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "webtagger",
   "description": "This extension lets you build image collections for tagging directly in the browser via a sidebar and various context menu controls.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   
   "permissions": [
     "storage",
