@@ -334,12 +334,12 @@ function getCurrentProjectName() {
   return res;
 }
 
+const tooltipElements = document.querySelectorAll("[todo]");
+
 async function main() {
   setVersionLabel();
 
   // iterate the document and add tooltips to all elements with the [todo] attribute
-  const tooltipElements = document.querySelectorAll("[todo]");
-
   for (const el of tooltipElements) {
     if (el.hasAttribute("title")) {
       el.setAttribute("title", el.getAttribute("title") + " (Coming soon...)");
@@ -354,11 +354,6 @@ async function main() {
    */
   const entryList = document.querySelector("#image-entries");
 
-  // test initializing a clean slate
-  await load();
-
-  // test: save the projects to local storage
-  await save();
 
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
@@ -1125,8 +1120,10 @@ async function main() {
   });
 
   updateStatsFirstTime();
-
   updateStats();
+
+  // test initializing a clean slate
+  await load();
 }
 
 const mouse = {
