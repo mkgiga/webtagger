@@ -15,6 +15,11 @@ Auto-tagging via image recognition models is a powerful method for quickly produ
 - Export and import datasets
 - Advanced programmatic features for power users (documentation coming soon)
 
+## Todo
+- [ ] Drag and drop tags onto selection
+- [ ] Click to preview full image
+- [ ] Undo/Redo command history stack
+
 ## Installation
 
 1. First, clone the repository (or download the zip file and extract it wherever you want).
@@ -40,10 +45,23 @@ git clone https://github.com/mkgiga/webtagger.git
 
 ### Opening the sidebar
 Click on the extension icon in the browser toolbar to open the sidebar. If you don't see the icon, click on the puzzle icon and pin the extension.
+
 ### Adding images
 Visit any browser tab and right-click an image to see the 'webtagger' option, then click on 'Add image to sidebar'.
-### Tagging images
-TODO add instructions, (feature is implemented)
+
+### Selecting images
+Left click the preview image next to the textbox to select it. Holding CTRL causes the image to be added to your current selection. Holding shift selects a range.
+
+## Tagging images
+- Creating tags:
+  In the bottom bar exists a tab called 'Categories', in it, press the + button on the menu bar to create a new category.
+  With your new category, press the + button below the category emoji to add a new tag.
+- Renaming tags:
+  Double click the text inside the tag to rename it.
+- Applying a tag to an image
+  Select any image(s). Now, click the top 'handle' of the tag to select it.
+  You can now apply the selected tag to the image selection by either clicking the checkmark on the right of the menu bar, or by single clicking any of the tags (not on the handle because that will deselect it). I am working on drag-and-drop to simplify this confusing design
+
 ### Advanced usage
 TODO add instructions, (features implemented)
 
